@@ -320,25 +320,15 @@ export default function Home() {
   // Landing
   return (
     <div style={{ minHeight: '100vh', background: C.forest, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '48px 24px 32px' }}>
-        <Logo size={44}/>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: 40 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(200,146,42,0.15)', border: '1px solid rgba(200,146,42,0.3)', borderRadius: 40, padding: '6px 14px', marginBottom: 20, width: 'fit-content' }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.ochre }}/>
-            <span style={{ color: C.ochre, fontSize: 12, fontWeight: 600, letterSpacing: '0.05em' }}>NOW LIVE IN UGANDA</span>
-          </div>
-          <h1 style={{ color: C.white, fontSize: 'clamp(36px, 8vw, 52px)', fontWeight: 900, letterSpacing: '-1.5px', lineHeight: 1.05, marginBottom: 16 }}>
-            Property<br/>management<br/><span style={{ color: C.ochre }}>done right.</span>
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16, lineHeight: 1.6, maxWidth: 320, marginBottom: 32 }}>
-            One platform for landlords and tenants across Uganda. Pay rent, report issues, stay safe.
-          </p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {FEATURES.map(f => (
-              <div key={f} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 40, padding: '7px 14px', color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: 500 }}>{f}</div>
-            ))}
-          </div>
-        </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 24px 32px', textAlign: 'center' }}>
+        {/* Big logo centred */}
+        <img src="/ardhi-logo.png" alt="Ardhi" style={{ width: 120, height: 120, objectFit: 'contain', marginBottom: 20 }}/>
+        <h1 style={{ color: C.white, fontSize: 'clamp(40px, 9vw, 56px)', fontWeight: 900, letterSpacing: '-2px', lineHeight: 1, marginBottom: 12 }}>
+          The Ardhi
+        </h1>
+        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 16, lineHeight: 1.6, maxWidth: 280, marginBottom: 0 }}>
+          Property management for landlords and tenants across Uganda.
+        </p>
       </div>
 
       <div style={{ background: C.canvas, borderRadius: '28px 28px 0 0', padding: '28px 20px 48px' }}>
