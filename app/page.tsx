@@ -72,8 +72,12 @@ export default function Home() {
       if (isSignUp) { body.full_name = fullName; body.phone = phone }
       if (role === 'tenant' && isSignUp) body.invite_code = inviteCode
       const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Something went wrong')
+      let data: any = {}
+      try { data = await res.json() } catch {}
+      if (!res.ok) {
+        const msg = typeof data?.error === 'string' ? data.error : 'Something went wrong. Please try again.'
+        throw new Error(msg)
+      }
       if (isSignUp && role === 'tenant') {
         setUserId(data.user?.id)
         setStep('kyc')
@@ -82,7 +86,10 @@ export default function Home() {
       } else {
         router.push(role === 'landlord' ? '/landlord' : '/tenant')
       }
-    } catch (e: any) { setError(e.message) } finally { setLoading(false) }
+    } catch (e: any) {
+      const msg = typeof e?.message === 'string' && e.message ? e.message : 'Something went wrong. Please try again.'
+      setError(msg)
+    } finally { setLoading(false) }
   }
 
   async function handleKYC() {
