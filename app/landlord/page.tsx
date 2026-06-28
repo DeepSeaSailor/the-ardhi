@@ -5,7 +5,8 @@ import {
   LayoutDashboard, Building2, Users, CreditCard, Bell, FileText,
   Plus, ChevronRight, TrendingUp, AlertTriangle, CheckCircle,
   MapPin, Home, X, Copy, Eye, RefreshCw, Phone, IdCard,
-  DoorOpen, Banknote, MoreVertical, ArrowUpRight
+  DoorOpen, Banknote, MoreVertical, ArrowUpRight, List, Wifi,
+  Shield, Car, Zap, Droplets, Tv, Wind, Trash2
 } from 'lucide-react'
 
 const C = {
@@ -124,6 +125,9 @@ export default function LandlordDashboard() {
   const [showAddProp, setShowAddProp] = useState(false)
   const [showAddTenant, setShowAddTenant] = useState(false)
   const [showCode, setShowCode] = useState<string | null>(null)
+  const [listings, setListings] = useState<any[]>([])
+  const [showAddListing, setShowAddListing] = useState(false)
+  const [newListing, setNewListing] = useState({ property_id: '', unit_number: '', title: '', description: '', rent_amount: '', deposit_amount: '', property_type: 'apartment', location: '', amenities: [] as string[] })
   const [toast, setToast] = useState({ show: false, msg: '' })
   const [newProp, setNewProp] = useState({ name: '', type: 'apartment', location: '', total_units: '' })
   const [newTenant, setNewTenant] = useState({ full_name: '', national_id: '', phone: '', email: '', unit: '', rent: '' })
@@ -132,13 +136,14 @@ export default function LandlordDashboard() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [pRes, tRes, payRes, aRes, cRes] = await Promise.all([
+      const [pRes, tRes, payRes, aRes, cRes, lRes] = await Promise.all([
         fetch('/api/landlord/properties'), fetch('/api/landlord/tenants'),
         fetch('/api/landlord/payments'), fetch('/api/landlord/alerts'), fetch('/api/landlord/complaints'),
+        fetch('/api/landlord/listings'),
       ])
-      const [p, t, pay, a, c] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), aRes.json(), cRes.json()])
+      const [p, t, pay, a, c, l] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), aRes.json(), cRes.json(), lRes.json()])
       setProperties(p.data || []); setTenants(t.data || []); setPayments(pay.data || [])
-      setAlerts(a.data || []); setComplaints(c.data || [])
+      setAlerts(a.data || []); setComplaints(c.data || []); setListings(l.data || [])
     } catch (e) { console.error(e) } finally { setLoading(false) }
   }, [])
 
@@ -169,7 +174,8 @@ export default function LandlordDashboard() {
     { key: 'properties', icon: <Building2 size={20}/>, label: 'Properties' },
     { key: 'tenants', icon: <Users size={20}/>, label: 'Tenants' },
     { key: 'payments', icon: <CreditCard size={20}/>, label: 'Payments' },
-    { key: 'alerts', icon: <Bell size={20}/>, label: unread > 0 ? `Alerts` : 'Alerts', badge: unread },
+    { key: 'alerts', icon: <Bell size={20}/>, label: 'Alerts', badge: unread },
+    { key: 'listings', icon: <List size={20}/>, label: 'Listings' },
   ]
 
   if (loading) return (
@@ -425,6 +431,56 @@ export default function LandlordDashboard() {
             {alerts.length === 0 && <div style={{ textAlign: 'center', padding: '48px 20px', background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, color: C.muted }}>No alerts yet</div>}
           </div>
         )}
+
+        {/* LISTINGS */}
+        {tab === 'listings' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontWeight: 800, fontSize: 20, color: C.charcoal }}>Property Listings</h2>
+              <Btn variant="ochre" size="sm" onClick={() => setShowAddListing(true)}><Plus size={15}/> Add Listing</Btn>
+            </div>
+            <div style={{ background: C.mint, borderRadius: 12, padding: '12px 14px', marginBottom: 16, fontSize: 13, color: C.forest, lineHeight: 1.6 }}>
+              Listings are public — anyone can browse them before signing up. Share the invite link with interested tenants.
+            </div>
+            {listings.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '48px 20px', background: C.white, borderRadius: 20, border: `1px solid ${C.border}` }}>
+                <List size={48} color={C.border} style={{ margin: '0 auto 12px' }}/>
+                <div style={{ fontWeight: 700, color: C.charcoal, marginBottom: 6 }}>No listings yet</div>
+                <div style={{ color: C.muted, fontSize: 14, marginBottom: 16 }}>Add a listing to attract tenants publicly</div>
+                <Btn variant="primary" onClick={() => setShowAddListing(true)}><Plus size={15}/> Add Listing</Btn>
+              </div>
+            )}
+            {listings.map((l: any) => (
+              <div key={l.id} style={{ background: C.white, borderRadius: 16, border: `1px solid ${C.border}`, padding: 18, marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: 15, color: C.charcoal }}>{l.title}</div>
+                    <div style={{ fontSize: 13, color: C.muted, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={12}/>{l.location} · Unit {l.unit_number}</div>
+                  </div>
+                  <span style={{ background: l.is_available ? C.green + '15' : C.red + '15', color: l.is_available ? C.green : C.red, borderRadius: 6, padding: '3px 9px', fontSize: 11, fontWeight: 700 }}>{l.is_available ? 'Available' : 'Taken'}</span>
+                </div>
+                <div style={{ fontWeight: 900, fontSize: 18, color: C.forest, marginBottom: 8 }}>UGX {(l.rent_amount || 0).toLocaleString()}<span style={{ fontSize: 13, fontWeight: 400, color: C.muted }}>/month</span></div>
+                {l.amenities?.length > 0 && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                    {l.amenities.map((a: string) => (
+                      <span key={a} style={{ background: C.canvas, borderRadius: 6, padding: '3px 8px', fontSize: 11, color: C.forest, fontWeight: 600 }}>{a}</span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ background: C.canvas, borderRadius: 8, padding: '8px 12px', marginBottom: 12 }}>
+                  <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginBottom: 2 }}>Invite Link Code</div>
+                  <div style={{ fontFamily: 'monospace', fontWeight: 800, color: C.forest, letterSpacing: 2 }}>{l.invite_link}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Btn variant="ghost" size="sm" onClick={() => { navigator.clipboard?.writeText(l.invite_link); showToast('Link copied!') }}><Copy size={13}/> Copy Code</Btn>
+                  <Btn variant="secondary" size="sm" onClick={async () => { await fetch('/api/landlord/listings/' + l.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ is_available: !l.is_available }) }); fetchData(); }}>{l.is_available ? 'Mark Taken' : 'Mark Available'}</Btn>
+                  <Btn variant="danger" size="sm" onClick={async () => { await fetch('/api/landlord/listings/' + l.id, { method: 'DELETE' }); fetchData(); showToast('Listing removed') }}><Trash2 size={13}/></Btn>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
       </div>
 
       {/* Bottom Nav */}
@@ -477,6 +533,49 @@ export default function LandlordDashboard() {
           <div style={{ fontFamily: 'monospace', fontSize: 36, fontWeight: 900, letterSpacing: 10, color: C.forest }}>{showCode}</div>
           <p style={{ color: C.muted, fontSize: 14, marginTop: 12, lineHeight: 1.6 }}>Share this code with your tenant. They enter it when signing up to join your property.</p>
           <Btn variant="primary" onClick={() => { navigator.clipboard?.writeText(showCode || ''); showToast('Code copied!'); setShowCode(null) }} full style={{ marginTop: 20, justifyContent: 'center' }}><Copy size={16}/> Copy Code</Btn>
+        </div>
+      </Modal>
+
+      {/* Add Listing Modal */}
+      <Modal open={showAddListing} onClose={() => setShowAddListing(false)} title="Add Property Listing">
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Property</label>
+          <select value={newListing.property_id} onChange={e => setNewListing(l => ({ ...l, property_id: e.target.value, property_type: properties.find(p => p.id === e.target.value)?.type || 'apartment', location: properties.find(p => p.id === e.target.value)?.location || '' }))}
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}>
+            <option value="">Select a property...</option>
+            {properties.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+        </div>
+        <Input label="Listing Title" placeholder="e.g. Spacious 2BR Apartment in Nakasero" value={newListing.title} onChange={(v: string) => setNewListing(l => ({ ...l, title: v }))} />
+        <Input label="Unit Number" placeholder="e.g. A1" value={newListing.unit_number} onChange={(v: string) => setNewListing(l => ({ ...l, unit_number: v }))} />
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Description</label>
+          <textarea placeholder="Describe the property..." value={newListing.description} onChange={e => setNewListing(l => ({ ...l, description: e.target.value }))} rows={3}
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const, fontFamily: 'inherit', resize: 'none' as const }} />
+        </div>
+        <Input label="Monthly Rent (UGX)" placeholder="e.g. 850000" value={newListing.rent_amount} onChange={(v: string) => setNewListing(l => ({ ...l, rent_amount: v }))} type="number" />
+        <Input label="Deposit Amount (UGX)" placeholder="e.g. 1700000" value={newListing.deposit_amount} onChange={(v: string) => setNewListing(l => ({ ...l, deposit_amount: v }))} type="number" />
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Amenities</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {['WiFi', 'Security', 'Parking', 'Generator', 'Water', 'DSTV', 'Air Conditioning', 'Furnished'].map(a => {
+              const selected = newListing.amenities.includes(a)
+              return (
+                <button key={a} onClick={() => setNewListing(l => ({ ...l, amenities: selected ? l.amenities.filter(x => x !== a) : [...l.amenities, a] }))}
+                  style={{ padding: '7px 14px', borderRadius: 8, border: `1.5px solid ${selected ? C.forest : C.border}`, background: selected ? C.mint : C.white, color: selected ? C.forest : C.muted, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                  {a}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+          <Btn variant="ghost" onClick={() => setShowAddListing(false)} style={{ flex: 1, justifyContent: 'center' }}>Cancel</Btn>
+          <Btn variant="ochre" style={{ flex: 1, justifyContent: 'center' }} onClick={async () => {
+            if (!newListing.property_id || !newListing.title || !newListing.rent_amount) return
+            const res = await fetch('/api/landlord/listings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...newListing, rent_amount: parseInt(newListing.rent_amount), deposit_amount: parseInt(newListing.deposit_amount || '0') }) })
+            if (res.ok) { showToast('Listing published'); setShowAddListing(false); fetchData(); setNewListing({ property_id: '', unit_number: '', title: '', description: '', rent_amount: '', deposit_amount: '', property_type: 'apartment', location: '', amenities: [] }) }
+          }}>Publish Listing</Btn>
         </div>
       </Modal>
 
