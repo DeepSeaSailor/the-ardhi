@@ -349,7 +349,10 @@ export default function TenantDashboard() {
                   <div style={{ fontSize: 12, color: C.muted }}>{p.payment_method?.replace(/_/g, ' ')} · {new Date(p.created_at).toLocaleDateString()}</div>
                   {p.reference && <div style={{ fontSize: 11, color: C.muted, fontFamily: 'monospace' }}>Ref: {p.reference}</div>}
                 </div>
-                <span style={{ background: (p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre) + '15', color: p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre, borderRadius: 6, padding: '3px 9px', fontSize: 11, fontWeight: 700 }}>{p.status}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                  <span style={{ background: (p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre) + '15', color: p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre, borderRadius: 6, padding: '3px 9px', fontSize: 11, fontWeight: 700 }}>{p.status}</span>
+                  {p.status === 'pending' && <button onClick={async () => { if (!confirm('Delete this payment submission?')) return; await apiFetch('/api/tenant/payments/' + p.id, { method: 'DELETE' }); fetchData(); showToast('Payment deleted') }} style={{ background: 'none', border: 'none', color: C.red, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600 }}>🗑 Delete</button>}
+                </div>
               </div>
             ))}
           </div>
