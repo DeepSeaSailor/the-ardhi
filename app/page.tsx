@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { saveSession } from '@/lib/session'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/Logo'
 import { Building2, Home as HomeIcon, ArrowRight, ChevronRight, Upload, Eye, EyeOff, CheckCircle, FileText, Phone, Mail, User, IdCard } from 'lucide-react'
@@ -78,6 +79,7 @@ export default function Home() {
         const msg = typeof data?.error === 'string' ? data.error : 'Something went wrong. Please try again.'
         throw new Error(msg)
       }
+      if (data.user) saveSession(data.user, role!)
       if (isSignUp && role === 'tenant') {
         setUserId(data.user?.id)
         setStep('kyc')
