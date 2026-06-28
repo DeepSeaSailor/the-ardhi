@@ -267,9 +267,7 @@ export default function LandlordDashboard() {
           <Logo size={34}/>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {unread > 0 && <div style={{ background: C.red, color: C.white, borderRadius: 20, minWidth: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, padding: '0 6px' }}>{unread}</div>}
-            <button onClick={signOut} style={{ background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: 10, padding: '8px 12px', color: C.white, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}>
-              <LogOut size={14}/> Sign out
-            </button>
+            <div style={{ width: 34, height: 34, borderRadius: '50%', background: C.ochre, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 15 }}>L</div>
           </div>
         </div>
         {tab === 'dashboard' && (
@@ -498,7 +496,7 @@ export default function LandlordDashboard() {
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', zIndex: 100 }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', zIndex: 100 }} className="bottom-nav">
         {NAV.map(n => (
           <button key={n.key} onClick={() => setTab(n.key)} style={{ flex: 1, padding: '10px 2px 10px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: tab === n.key ? C.forest : C.muted, position: 'relative' }}>
             {(n.badge ?? 0) > 0 && <div style={{ position: 'absolute', top: 6, right: '50%', transform: 'translateX(10px)', background: C.red, color: C.white, borderRadius: 20, minWidth: 16, height: 16, fontSize: 9, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{n.badge}</div>}
@@ -507,6 +505,10 @@ export default function LandlordDashboard() {
             {tab === n.key && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 24, height: 3, background: C.forest, borderRadius: '0 0 4px 4px' }} />}
           </button>
         ))}
+        <button onClick={signOut} style={{ flex: 1, padding: '10px 2px 10px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: C.red }}>
+          <LogOut size={20}/>
+          <div style={{ fontSize: 9, fontWeight: 500 }}>Sign out</div>
+        </button>
       </div>
 
       </div>
