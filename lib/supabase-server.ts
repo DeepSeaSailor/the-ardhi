@@ -1,25 +1,16 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-export function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
+// Singleton — created once, reused across all requests
+let adminClient: SupabaseClient | null = null
 
-export function getSupabaseAnon() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
-
-// Helper: get user from Authorization header or cookie
-export async function getAuthUser(req: Request) {
-  const authHeader = req.headers.get('authorization')
-  const token = authHeader?.replace('Bearer ', '')
-  if (!token) return null
-  const supabase = getSupabaseAnon()
-  const { data } = await supabase.auth.getUser(token)
-  return data.user
+export function getSupabaseAdmin(): SupabaseClient {
+  if (!adminClient) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url || !key) throw new Error('Missing Supabase environment variables')
+    adminClient = createClient(url, key, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+  }
+  return adminClient
 }
