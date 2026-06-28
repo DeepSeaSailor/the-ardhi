@@ -1,0 +1,16 @@
+{
+  "name": "The Ardhi - Property Management",
+  "short_name": "The Ardhi",
+  "description": "Property management for landlords and tenants across Uganda",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1B3A2D",
+  "theme_color": "#1B3A2D",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/ardhi-logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/ardhi-logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["business", "finance", "utilities"],
+  "lang": "en-UG"
+}
