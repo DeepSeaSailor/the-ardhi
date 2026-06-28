@@ -1,5 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { getSession, clearSession } from '@/lib/session'
 import Logo from '@/components/Logo'
 import { Home, CreditCard, Users, Bell, AlertTriangle, CheckCircle, X, ChevronRight, Phone, Building2, MapPin, Shield, Smartphone, Landmark, Send, FileText, Clock, Download } from 'lucide-react'
 
@@ -47,23 +49,34 @@ export default function TenantDashboard() {
   const [payPhone, setPayPhone] = useState('')
   const [complaint, setComplaint] = useState('')
   const [alertMsg, setAlertMsg] = useState('')
+  const router = useRouter()
+  const [userId, setUserId] = useState<string | null>(null)
   const [toast, setToast] = useState({ show: false, msg: '' })
 
   const showToast = (msg: string) => { setToast({ show: true, msg }); setTimeout(() => setToast({ show: false, msg: '' }), 2500) }
 
+  useEffect(() => {
+    const session = getSession()
+    if (!session) { router.push('/'); return }
+    setUserId(session.id)
+  }, [router])
+
   const fetchData = useCallback(async () => {
+    if (!userId) return
     try {
+      const headers = { 'x-user-id': userId || '' }
       const [pRes, tRes, payRes, cRes, aRes, nRes] = await Promise.all([
-        fetch('/api/tenant/profile'), fetch('/api/tenant/tenancy'), fetch('/api/tenant/payments'),
-        fetch('/api/tenant/complaints'), fetch('/api/tenant/alerts'), fetch('/api/tenant/neighbors'),
+        fetch('/api/tenant/profile', { headers }), fetch('/api/tenant/tenancy', { headers }),
+        fetch('/api/tenant/payments', { headers }), fetch('/api/tenant/complaints', { headers }),
+        fetch('/api/tenant/alerts', { headers }), fetch('/api/tenant/neighbors', { headers }),
       ])
       const [prof, ten, pays, comps, als, neigh] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), cRes.json(), aRes.json(), nRes.json()])
       setProfile(prof.data); setTenancy(ten.data); setPayments(pays.data || [])
       setComplaints(comps.data || []); setAlerts(als.data || []); setNeighbors(neigh.data || [])
     } catch (e) { console.error(e) } finally { setLoading(false) }
-  }, [])
+  }, [userId])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  useEffect(() => { if (userId) fetchData() }, [fetchData])
 
   const thisMonthPaid = payments.find((p: any) => {
     const d = new Date(p.created_at); const now = new Date()
@@ -72,20 +85,20 @@ export default function TenantDashboard() {
 
   async function submitPayment() {
     if (!payPhone) return
-    const res = await fetch('/api/tenant/payments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ payment_method: payMethod, phone_or_account: payPhone, amount: tenancy?.rent_amount, tenancy_id: tenancy?.id, property_id: tenancy?.property_id, month_year: new Date().toISOString().slice(0, 7) }) })
+    const res = await fetch('/api/tenant/payments', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-user-id': userId || '' }, body: JSON.stringify({ payment_method: payMethod, phone_or_account: payPhone, amount: tenancy?.rent_amount, tenancy_id: tenancy?.id, property_id: tenancy?.property_id, month_year: new Date().toISOString().slice(0, 7) }) })
     if (res.ok) { showToast('Payment submitted — pending confirmation'); setShowPayModal(false); setPayPhone(''); fetchData() }
     else { const d = await res.json(); showToast(d.error || 'Failed') }
   }
 
   async function submitComplaint() {
     if (!complaint) return
-    const res = await fetch('/api/tenant/complaints', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ description: complaint, property_id: tenancy?.property_id, unit_id: tenancy?.unit_id }) })
+    const res = await fetch('/api/tenant/complaints', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-user-id': userId || '' }, body: JSON.stringify({ description: complaint, property_id: tenancy?.property_id, unit_id: tenancy?.unit_id }) })
     if (res.ok) { showToast('Complaint submitted'); setShowComplaintModal(false); setComplaint(''); fetchData() }
   }
 
   async function postAlert() {
     if (!alertMsg) return
-    const res = await fetch('/api/tenant/alerts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: alertMsg, property_id: tenancy?.property_id, type: 'security' }) })
+    const res = await fetch('/api/tenant/alerts', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-user-id': userId || '' }, body: JSON.stringify({ message: alertMsg, property_id: tenancy?.property_id, type: 'security' }) })
     if (res.ok) { showToast('Alert sent to all tenants'); setShowAlertModal(false); setAlertMsg(''); fetchData() }
   }
 
@@ -247,10 +260,10 @@ export default function TenantDashboard() {
             {neighbors.length === 0 && <div style={{ textAlign: 'center', padding: '48px 20px', background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, color: C.muted }}>No other tenants in your building yet</div>}
             {neighbors.map((n: any) => (
               <div key={n.id} style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '14px 16px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: C.mint, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.forest, fontWeight: 800, fontSize: 18, flexShrink: 0 }}>{n.full_name?.[0]}</div>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: C.mint, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.forest, fontWeight: 800, fontSize: 16, flexShrink: 0 }}>#{n.unit_number}</div>
                 <div>
-                  <div style={{ fontWeight: 700, color: C.charcoal }}>{n.full_name}</div>
-                  <div style={{ fontSize: 13, color: C.muted }}>Unit {n.unit_number}</div>
+                  <div style={{ fontWeight: 700, color: C.charcoal }}>Unit {n.unit_number}</div>
+                  <div style={{ fontSize: 13, color: C.muted }}>Fellow tenant</div>
                 </div>
               </div>
             ))}
