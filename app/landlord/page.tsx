@@ -363,7 +363,7 @@ export default function LandlordDashboard() {
                 <div style={{ display: 'flex', gap: 8 }}>
                   <Btn variant="secondary" size="sm" onClick={() => { setSelectedProp(p); setTab('tenants') }}><Users size={13}/> Tenants</Btn>
                   <Btn variant="ghost" size="sm" onClick={() => setShowCode(p.invite_code)}><Copy size={13}/> Invite Code</Btn>
-                  <Btn variant="danger" size="sm" onClick={async () => { if (!confirm('Remove this property? This cannot be undone.')) return; await apiFetch('/api/landlord/properties/' + p.id, { method: 'DELETE' }); fetchData(); showToast('Property removed') }}><Trash2 size={13}/></Btn>
+                  <Btn variant="danger" size="sm" onClick={async () => { setProperties(prev => prev.filter((x: any) => x.id !== p.id)); apiFetch('/api/landlord/properties/' + p.id, { method: 'DELETE' }).then(() => showToast('Property removed')).catch(() => { fetchData(); showToast('Could not remove property') }) }}><Trash2 size={13}/></Btn>
                 </div>
               </div>
             ))}
@@ -435,7 +435,7 @@ export default function LandlordDashboard() {
                 <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                   <div style={{ fontWeight: 800, fontSize: 15, color: p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre }}>{formatUGX(p.amount)}</div>
                   <Badge color={p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre}>{p.status}</Badge>
-                  <button onClick={async () => { if (!confirm('Delete this payment record?')) return; await apiFetch('/api/landlord/payments/' + p.id, { method: 'DELETE' }); fetchData(); showToast('Payment deleted') }} style={{ background: 'none', border: 'none', color: C.red, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600 }}><Trash2 size={11}/> Delete</button>
+                  <button onClick={async () => { setPayments(prev => prev.filter((x: any) => x.id !== p.id)); apiFetch('/api/landlord/payments/' + p.id, { method: 'DELETE' }).then(() => showToast('Payment deleted')).catch(() => fetchData()) }} style={{ background: 'none', border: 'none', color: C.red, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600 }}><Trash2 size={11}/> Delete</button>
                 </div>
               </div>
             ))}
