@@ -137,7 +137,7 @@ export default function Home() {
             We need both sides of your National ID for verification. This keeps our community safe.
           </p>
 
-          {error && <div style={{ background: '#FFF5F5', border: `1px solid ${C.red}30`, borderRadius: 10, padding: '10px 14px', color: C.red, fontSize: 13, marginBottom: 16 }}>{error}</div>}
+          {error && typeof error === 'string' && error.length > 2 && <div style={{ background: '#FFF5F5', border: `1px solid ${C.red}30`, borderRadius: 10, padding: '10px 14px', color: C.red, fontSize: 13, marginBottom: 16 }}>{error}</div>}
 
           {/* Front */}
           <div style={{ marginBottom: 14 }}>
@@ -217,7 +217,7 @@ export default function Home() {
             </div>
           </div>
 
-          {error && <div style={{ background: '#FFF5F5', border: `1px solid ${C.red}30`, borderRadius: 10, padding: '10px 14px', color: C.red, fontSize: 13, marginBottom: 16 }}>{error}</div>}
+          {error && typeof error === 'string' && error.length > 2 && <div style={{ background: '#FFF5F5', border: `1px solid ${C.red}30`, borderRadius: 10, padding: '10px 14px', color: C.red, fontSize: 13, marginBottom: 16 }}>{error}</div>}
 
           <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: 18, marginBottom: 16, maxHeight: 280, overflowY: 'auto' }}>
             <pre style={{ fontFamily: 'inherit', fontSize: 12, color: C.body, lineHeight: 1.7, whiteSpace: 'pre-wrap', margin: 0 }}>{AGREEMENT_TEXT}</pre>
@@ -258,7 +258,7 @@ export default function Home() {
           </div>
 
           <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, padding: 24, boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
-            {error && <div style={{ background: '#FFF5F5', border: `1px solid ${C.red}30`, borderRadius: 10, padding: '10px 14px', color: C.red, fontSize: 13, marginBottom: 16, fontWeight: 500 }}>{error}</div>}
+            {error && typeof error === 'string' && error.length > 2 && <div style={{ background: '#FFF5F5', border: `1px solid ${C.red}30`, borderRadius: 10, padding: '10px 14px', color: C.red, fontSize: 13, marginBottom: 16, fontWeight: 500 }}>{error}</div>}
 
             {isSignUp && (
               <div style={{ position: 'relative', marginBottom: 10 }}>
@@ -342,7 +342,7 @@ export default function Home() {
         <p style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 16 }}>Get started</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 420, margin: '0 auto' }}>
           {ROLES.map(r => (
-            <button key={r.key} onClick={() => { setRole(r.key as any); setStep('auth') }}
+            <button key={r.key} onClick={() => { setRole(r.key as any); setStep('auth'); setError('') }}
               style={{ display: 'flex', alignItems: 'center', gap: 16, background: C.white, border: `1.5px solid ${C.border}`, borderRadius: 16, padding: '16px 18px', cursor: 'pointer', textAlign: 'left', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
               <div style={{ width: 48, height: 48, borderRadius: 13, background: r.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: r.color, flexShrink: 0 }}>{ROLE_ICONS[r.key]}</div>
               <div style={{ flex: 1 }}>
