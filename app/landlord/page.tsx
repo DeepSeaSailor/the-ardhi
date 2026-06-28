@@ -363,6 +363,7 @@ export default function LandlordDashboard() {
                 <div style={{ display: 'flex', gap: 8 }}>
                   <Btn variant="secondary" size="sm" onClick={() => { setSelectedProp(p); setTab('tenants') }}><Users size={13}/> Tenants</Btn>
                   <Btn variant="ghost" size="sm" onClick={() => setShowCode(p.invite_code)}><Copy size={13}/> Invite Code</Btn>
+                  <Btn variant="danger" size="sm" onClick={async () => { if (!confirm('Remove this property? This cannot be undone.')) return; await apiFetch('/api/landlord/properties/' + p.id, { method: 'DELETE' }); fetchData(); showToast('Property removed') }}><Trash2 size={13}/></Btn>
                 </div>
               </div>
             ))}
@@ -431,9 +432,10 @@ export default function LandlordDashboard() {
                   <div style={{ fontSize: 12, color: C.muted }}>{p.payment_method?.replace(/_/g, ' ')} · {new Date(p.created_at).toLocaleDateString()}</div>
                   {p.reference && <div style={{ fontSize: 11, color: C.muted, fontFamily: 'monospace' }}>Ref: {p.reference}</div>}
                 </div>
-                <div style={{ textAlign: 'right' }}>
+                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                   <div style={{ fontWeight: 800, fontSize: 15, color: p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre }}>{formatUGX(p.amount)}</div>
                   <Badge color={p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre}>{p.status}</Badge>
+                  <button onClick={async () => { if (!confirm('Delete this payment record?')) return; await apiFetch('/api/landlord/payments/' + p.id, { method: 'DELETE' }); fetchData(); showToast('Payment deleted') }} style={{ background: 'none', border: 'none', color: C.red, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600 }}><Trash2 size={11}/> Delete</button>
                 </div>
               </div>
             ))}
