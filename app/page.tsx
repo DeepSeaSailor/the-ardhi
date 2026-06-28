@@ -21,7 +21,6 @@ const FEATURES = [
 const ROLES = [
   { key: 'landlord', label: 'Landlord', sub: 'Manage your properties', color: C.forest, bg: C.mint },
   { key: 'tenant', label: 'Tenant', sub: 'Pay rent & stay connected', color: C.ochre, bg: '#FFF8EC' },
-  { key: 'admin', label: 'Admin', sub: 'Platform overview', color: C.purple, bg: '#F0F1FF' },
 ]
 
 export default function Home() {
