@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/Logo'
+import Sidebar from '@/components/Sidebar'
 import { getSession, clearSession } from '@/lib/session'
 import {
   LayoutDashboard, Building2, Users, CreditCard, Bell, List,
@@ -254,8 +255,12 @@ export default function LandlordDashboard() {
     </div>
   )
 
+  const navItems = NAV.map(n => ({ key: n.key, icon: n.icon, label: n.label, badge: n.badge }))
+
   return (
-    <div style={{ minHeight: '100vh', background: C.canvas, display: 'flex', flexDirection: 'column', paddingBottom: 80 }}>
+    <div className="app-shell" style={{ minHeight: '100vh', background: C.canvas }}>      
+      <Sidebar nav={navItems} tab={tab} setTab={setTab} onSignOut={signOut} role="Landlord"/>
+      <div className="main-content" style={{ display: 'flex', flexDirection: 'column', paddingBottom: 80, minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ background: C.forest, padding: '16px 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -289,7 +294,7 @@ export default function LandlordDashboard() {
               </div>
               <div style={{ color: C.ochre, fontSize: 12, fontWeight: 700, marginTop: 6 }}>{collectRate}% collection rate</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+            <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
               {[
                 { label: 'Properties', value: properties.length, color: C.forest, icon: <Building2 size={18}/> },
                 { label: 'Tenants', value: tenants.length, color: C.ochre, icon: <Users size={18}/> },
@@ -502,6 +507,8 @@ export default function LandlordDashboard() {
             {tab === n.key && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 24, height: 3, background: C.forest, borderRadius: '0 0 4px 4px' }} />}
           </button>
         ))}
+      </div>
+
       </div>
 
       {/* Add Property Modal */}
