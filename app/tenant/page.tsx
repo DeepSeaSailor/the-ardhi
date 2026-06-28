@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSession, clearSession } from '@/lib/session'
 import Logo from '@/components/Logo'
+import Sidebar from '@/components/Sidebar'
 import { Home, CreditCard, Users, Bell, AlertTriangle, CheckCircle, X, ChevronRight, Phone, Building2, MapPin, Shield, Smartphone, Landmark, Send, FileText, Clock, Download } from 'lucide-react'
 
 const C = { forest: '#1B3A2D', ochre: '#C8922A', canvas: '#F9F6F1', charcoal: '#1A1A1A', body: '#3D3D3D', mint: '#EBF4EF', red: '#D64045', border: '#E8E4DC', muted: '#8A8A82', white: '#FFFFFF', green: '#2A7D4F' }
@@ -124,8 +125,12 @@ export default function TenantDashboard() {
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Tenant'
 
+  const navItems = NAV.map(n => ({ key: n.key, icon: n.icon, label: n.label }))
+
   return (
-    <div style={{ minHeight: '100vh', background: C.canvas, display: 'flex', flexDirection: 'column', paddingBottom: 80 }}>
+    <div className="app-shell" style={{ minHeight: '100vh', background: C.canvas }}>
+      <Sidebar nav={navItems} tab={tab} setTab={setTab} onSignOut={() => { clearSession(); router.push('/') }} accentColor={C.ochre} role="Tenant"/>
+      <div className="main-content" style={{ display: 'flex', flexDirection: 'column', paddingBottom: 80, minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ background: C.ochre, padding: '16px 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -306,6 +311,8 @@ export default function TenantDashboard() {
             {tab === n.key && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 24, height: 3, background: C.ochre, borderRadius: '0 0 4px 4px' }} />}
           </button>
         ))}
+      </div>
+
       </div>
 
       {/* Pay Modal */}
