@@ -55,3 +55,79 @@ input, select, textarea { font-family: inherit; }
   50% { opacity: 0.5; }
 }
 .fade-up { animation: fadeUp 0.3s ease forwards; }
+
+/* ─── RESPONSIVE LAYOUT ─────────────────────────────────────────────── */
+
+/* Mobile first - these are the defaults */
+.app-container {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* PC layout - sidebar navigation */
+@media (min-width: 900px) {
+  .app-shell {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+  .sidebar {
+    display: flex !important;
+    flex-direction: column;
+    background: #1B3A2D;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 240px;
+    padding: 24px 0;
+    z-index: 200;
+    overflow-y: auto;
+  }
+  .main-content {
+    margin-left: 240px;
+    padding: 32px;
+    max-width: 900px;
+  }
+  .bottom-nav {
+    display: none !important;
+  }
+  .mobile-header {
+    display: none !important;
+  }
+  .pc-header {
+    display: flex !important;
+  }
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .content-grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+@media (max-width: 899px) {
+  .sidebar { display: none !important; }
+  .pc-header { display: none !important; }
+  .main-content { margin-left: 0; padding: 16px; }
+}
+
+/* Typography scale */
+@media (min-width: 900px) {
+  .page-title { font-size: 28px !important; }
+  .section-title { font-size: 20px !important; }
+  .card { border-radius: 16px !important; }
+}
+
+/* Scrollbar for PC */
+@media (min-width: 900px) {
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #F9F6F1; }
+  ::-webkit-scrollbar-thumb { background: #D6D6D0; border-radius: 6px; }
+}
