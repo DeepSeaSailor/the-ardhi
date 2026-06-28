@@ -7,7 +7,7 @@ import { getSession, clearSession } from '@/lib/session'
 import {
   LayoutDashboard, Building2, Users, CreditCard, Bell, List,
   Plus, ChevronRight, AlertTriangle, CheckCircle, MapPin, X,
-  Copy, RefreshCw, Phone, IdCard, DoorOpen, Trash2,
+  Copy, RefreshCw, Phone, IdCard, DoorOpen, Trash2, Pencil,
   LogOut, Upload, Image as ImageIcon, Wifi, Shield, Car,
   Zap, Droplets, Tv, Wind, Waves, Dumbbell, Trees,
   Coffee, Utensils, Flame, Sun, Lock, Dog, Star
@@ -122,6 +122,8 @@ export default function LandlordDashboard() {
   const [loading, setLoading] = useState(true)
   const [selectedProp, setSelectedProp] = useState<any>(null)
   const [showAddProp, setShowAddProp] = useState(false)
+  const [editingProp, setEditingProp] = useState<any>(null)
+  const [editProp, setEditProp] = useState({ name: '', type: 'apartment', location: '', total_units: '' })
   const [showAddTenant, setShowAddTenant] = useState(false)
   const [showAddListing, setShowAddListing] = useState(false)
   const [showCode, setShowCode] = useState<string | null>(null)
@@ -188,6 +190,25 @@ export default function LandlordDashboard() {
       setShowCode(code)
       fetchData()
       setNewProp({ name: '', type: 'apartment', location: '', total_units: '' })
+    } finally { setSaving(false) }
+  }
+
+  async function saveEditProp() {
+    if (!editProp.name || !editProp.location || !editProp.total_units) { showToast('Please fill all fields'); return }
+    setSaving(true)
+    try {
+      const res = await apiFetch('/api/landlord/properties/' + editingProp.id, {
+        method: 'PATCH',
+        body: JSON.stringify({ name: editProp.name, type: editProp.type, location: editProp.location, total_units: parseInt(editProp.total_units) })
+      })
+      if (res.ok) {
+        setProperties(prev => prev.map((p: any) => p.id === editingProp.id ? { ...p, ...editProp, total_units: parseInt(editProp.total_units) } : p))
+        showToast('Property updated')
+        setEditingProp(null)
+      } else {
+        const d = await res.json()
+        showToast(d.error || 'Failed to update')
+      }
     } finally { setSaving(false) }
   }
 
@@ -363,6 +384,7 @@ export default function LandlordDashboard() {
                 <div style={{ display: 'flex', gap: 8 }}>
                   <Btn variant="secondary" size="sm" onClick={() => { setSelectedProp(p); setTab('tenants') }}><Users size={13}/> Tenants</Btn>
                   <Btn variant="ghost" size="sm" onClick={() => setShowCode(p.invite_code)}><Copy size={13}/> Invite Code</Btn>
+                  <Btn variant="ghost" size="sm" onClick={() => { setEditingProp(p); setEditProp({ name: p.name, type: p.type, location: p.location, total_units: String(p.total_units) }) }}><Pencil size={13}/> Edit</Btn>
                   <Btn variant="danger" size="sm" onClick={async () => { setProperties(prev => prev.filter((x: any) => x.id !== p.id)); apiFetch('/api/landlord/properties/' + p.id, { method: 'DELETE' }).then(() => showToast('Property removed')).catch(() => { fetchData(); showToast('Could not remove property') }) }}><Trash2 size={13}/></Btn>
                 </div>
               </div>
@@ -533,6 +555,23 @@ export default function LandlordDashboard() {
         <div style={{ display: 'flex', gap: 10 }}>
           <Btn variant="ghost" onClick={() => setShowAddProp(false)} full>Cancel</Btn>
           <Btn variant="primary" onClick={addProperty} full disabled={saving}>{saving ? 'Saving...' : 'Add Property'}</Btn>
+        </div>
+      </Modal>
+
+      {/* Edit Property Modal */}
+      <Modal open={!!editingProp} onClose={() => setEditingProp(null)} title="Edit Property">
+        <Input label="Property Name" placeholder="e.g. Nakasero Heights" value={editProp.name} onChange={(v: string) => setEditProp(p => ({ ...p, name: v }))} />
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Property Type</label>
+          <select value={editProp.type} onChange={e => setEditProp(p => ({ ...p, type: e.target.value }))} style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}>
+            {PROP_TYPES.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
+          </select>
+        </div>
+        <Input label="Location" placeholder="e.g. Kololo, Kampala" value={editProp.location} onChange={(v: string) => setEditProp(p => ({ ...p, location: v }))} />
+        <Input label="Number of Units" placeholder="e.g. 12" value={editProp.total_units} onChange={(v: string) => setEditProp(p => ({ ...p, total_units: v }))} type="number" />
+        <div style={{ display: 'flex', gap: 10 }}>
+          <Btn variant="ghost" onClick={() => setEditingProp(null)} full>Cancel</Btn>
+          <Btn variant="primary" onClick={saveEditProp} full disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</Btn>
         </div>
       </Modal>
 
