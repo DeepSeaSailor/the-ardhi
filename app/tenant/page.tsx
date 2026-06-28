@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import Logo from '@/components/Logo'
-import { Home, CreditCard, Users, Bell, AlertTriangle, CheckCircle, X, ChevronRight, Phone, Building2, MapPin, Shield, Smartphone, Landmark, Send, FileText, Clock } from 'lucide-react'
+import { Home, CreditCard, Users, Bell, AlertTriangle, CheckCircle, X, ChevronRight, Phone, Building2, MapPin, Shield, Smartphone, Landmark, Send, FileText, Clock, Download } from 'lucide-react'
 
 const C = { forest: '#1B3A2D', ochre: '#C8922A', canvas: '#F9F6F1', charcoal: '#1A1A1A', body: '#3D3D3D', mint: '#EBF4EF', red: '#D64045', border: '#E8E4DC', muted: '#8A8A82', white: '#FFFFFF', green: '#2A7D4F' }
 
@@ -204,6 +204,25 @@ export default function TenantDashboard() {
                 <CreditCard size={18}/> Pay Now
               </button>
             )}
+            <button onClick={async () => {
+              const { downloadAgreementPDF } = await import('@/components/TenancyPDF')
+              await downloadAgreementPDF({
+                tenantName: profile?.full_name || 'Tenant',
+                nationalId: profile?.national_id || 'N/A',
+                phone: profile?.phone || 'N/A',
+                email: profile?.email || 'N/A',
+                landlordName: 'Landlord',
+                propertyName: tenancy?.property_name || 'N/A',
+                location: tenancy?.property_location || 'Uganda',
+                unitNumber: tenancy?.unit_number || 'N/A',
+                rentAmount: tenancy?.rent_amount || 0,
+                depositAmount: 0,
+                startDate: tenancy?.start_date || new Date().toLocaleDateString(),
+                signedAt: new Date().toLocaleString(),
+              })
+            }} style={{ width: '100%', padding: '12px', border: `1px solid ${C.border}`, borderRadius: 14, background: C.white, color: C.forest, fontWeight: 700, fontSize: 14, cursor: 'pointer', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <Download size={16}/> Download Tenancy Agreement (PDF)
+            </button>
             {payments.map((p: any) => (
               <div key={p.id} style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '14px 16px', marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
