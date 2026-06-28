@@ -351,7 +351,7 @@ export default function TenantDashboard() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                   <span style={{ background: (p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre) + '15', color: p.status === 'confirmed' ? C.green : p.status === 'failed' ? C.red : C.ochre, borderRadius: 6, padding: '3px 9px', fontSize: 11, fontWeight: 700 }}>{p.status}</span>
-                  {p.status === 'pending' && <button onClick={async () => { if (!confirm('Delete this payment submission?')) return; await apiFetch('/api/tenant/payments/' + p.id, { method: 'DELETE' }); fetchData(); showToast('Payment deleted') }} style={{ background: 'none', border: 'none', color: C.red, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600 }}>🗑 Delete</button>}
+                  {p.status === 'pending' && <button onClick={async () => { setPayments(prev => prev.filter((x: any) => x.id !== p.id)); apiFetch('/api/tenant/payments/' + p.id, { method: 'DELETE' }).then(() => showToast('Payment deleted')).catch(() => fetchData()) }} style={{ background: 'none', border: 'none', color: C.red, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600 }}>🗑 Delete</button>}
                 </div>
               </div>
             ))}
