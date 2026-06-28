@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { getSession, clearSession } from '@/lib/session'
 import Logo from '@/components/Logo'
 import Sidebar from '@/components/Sidebar'
-import { Home, CreditCard, Users, Bell, AlertTriangle, CheckCircle, X, ChevronRight, Phone, Building2, MapPin, Shield, Smartphone, Landmark, Send, FileText, Clock, Download } from 'lucide-react'
+import { Home, CreditCard, Users, Bell, AlertTriangle, CheckCircle, X, ChevronRight, Phone, Building2, MapPin, Shield, Smartphone, Landmark, Send, FileText, Clock, Download, LogOut } from 'lucide-react'
 
 const C = { forest: '#1B3A2D', ochre: '#C8922A', canvas: '#F9F6F1', charcoal: '#1A1A1A', body: '#3D3D3D', mint: '#EBF4EF', red: '#D64045', border: '#E8E4DC', muted: '#8A8A82', white: '#FFFFFF', green: '#2A7D4F' }
 
@@ -132,7 +132,7 @@ export default function TenantDashboard() {
       <Sidebar nav={navItems} tab={tab} setTab={setTab} onSignOut={() => { clearSession(); router.push('/') }} accentColor={C.ochre} role="Tenant"/>
       <div className="main-content" style={{ display: 'flex', flexDirection: 'column', paddingBottom: 80, minHeight: '100vh' }}>
       {/* Header */}
-      <div style={{ background: C.ochre, padding: '16px 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
+      <div style={{ background: C.forest, padding: '16px 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Logo size={34} />
           <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 15 }}>
@@ -303,14 +303,18 @@ export default function TenantDashboard() {
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', zIndex: 100, paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', zIndex: 100, paddingBottom: 'env(safe-area-inset-bottom)' }} className="bottom-nav">
         {NAV.map(n => (
-          <button key={n.key} onClick={() => setTab(n.key)} style={{ flex: 1, padding: '10px 4px 10px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: tab === n.key ? C.ochre : C.muted, position: 'relative' }}>
+          <button key={n.key} onClick={() => setTab(n.key)} style={{ flex: 1, padding: '10px 4px 10px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: tab === n.key ? C.forest : C.muted, position: 'relative' }}>
             <div style={{ transition: 'transform 0.15s', transform: tab === n.key ? 'scale(1.1)' : 'scale(1)' }}>{n.icon}</div>
             <div style={{ fontSize: 10, fontWeight: tab === n.key ? 700 : 500 }}>{n.label}</div>
-            {tab === n.key && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 24, height: 3, background: C.ochre, borderRadius: '0 0 4px 4px' }} />}
+            {tab === n.key && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 24, height: 3, background: C.forest, borderRadius: '0 0 4px 4px' }} />}
           </button>
         ))}
+        <button onClick={() => { clearSession(); router.push('/') }} style={{ flex: 1, padding: '10px 4px 10px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: C.red }}>
+          <LogOut size={20}/>
+          <div style={{ fontSize: 10, fontWeight: 500 }}>Sign out</div>
+        </button>
       </div>
 
       </div>
