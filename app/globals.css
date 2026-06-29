@@ -6,7 +6,6 @@
   --forest: #1B3A2D;
   --forest-light: #2A5240;
   --ochre: #C8922A;
-  --ochre-light: #E8A93A;
   --canvas: #F9F6F1;
   --charcoal: #1A1A1A;
   --body: #3D3D3D;
@@ -16,13 +15,12 @@
   --muted: #8A8A82;
   --white: #FFFFFF;
   --green: #2A7D4F;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --admin-bg: #060D0A;
+  --admin-surface: #0D1F16;
+  --admin-card: #111F17;
+  --admin-border: rgba(255,255,255,0.07);
+  --neon: #00FF87;
+  --neon-dim: rgba(0,255,135,0.12);
 }
 
 html { scroll-behavior: smooth; }
@@ -36,7 +34,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -45,27 +42,32 @@ a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; }
 input, select, textarea { font-family: inherit; }
 
-/* Animations */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50% { opacity: 0.4; }
 }
-.fade-up { animation: fadeUp 0.3s ease forwards; }
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 12px rgba(0,255,135,0.15); }
+  50% { box-shadow: 0 0 28px rgba(0,255,135,0.35); }
+}
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
+}
+.fade-up { animation: fadeUp 0.25s ease forwards; }
+.glow-pulse { animation: glow 3s ease-in-out infinite; }
 
-/* ─── RESPONSIVE LAYOUT ─────────────────────────────────────────────── */
-
-/* Mobile first - these are the defaults */
-.app-container {
-  max-width: 600px;
-  margin: 0 auto;
-  width: 100%;
+/* ── LAYOUT ───────────────────────────────────────────────────────────── */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* PC layout - sidebar navigation */
 @media (min-width: 900px) {
   .app-shell {
     display: grid;
@@ -75,59 +77,30 @@ input, select, textarea { font-family: inherit; }
   .sidebar {
     display: flex !important;
     flex-direction: column;
-    background: #1B3A2D;
+    background: var(--forest);
     position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    left: 0; top: 0; bottom: 0;
     width: 240px;
     padding: 24px 0;
     z-index: 200;
     overflow-y: auto;
   }
+  .admin-sidebar {
+    background: #060D0A !important;
+    border-right: 1px solid rgba(0,255,135,0.08) !important;
+  }
   .main-content {
     margin-left: 240px;
-    padding: 32px;
-    max-width: 900px;
   }
-  .bottom-nav {
-    display: none !important;
-  }
-  .mobile-header {
-    display: none !important;
-  }
-  .pc-header {
-    display: flex !important;
-  }
-  .content-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .content-grid-3 {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-  .stat-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
+  .bottom-nav { display: none !important; }
+  .stat-grid { grid-template-columns: repeat(4, 1fr) !important; }
+  .stat-grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
 }
 
 @media (max-width: 899px) {
   .sidebar { display: none !important; }
-  .pc-header { display: none !important; }
-  .main-content { margin-left: 0; padding: 16px; }
+  .main-content { margin-left: 0; }
 }
 
-/* Typography scale */
-@media (min-width: 900px) {
-  .page-title { font-size: 28px !important; }
-  .section-title { font-size: 20px !important; }
-  .card { border-radius: 16px !important; }
-}
-
-/* Scrollbar for PC */
-@media (min-width: 900px) {
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #F9F6F1; }
-  ::-webkit-scrollbar-thumb { background: #D6D6D0; border-radius: 6px; }
-}
+/* Admin dark scrollbar */
+.admin-scroll::-webkit-scrollbar-thumb { background: rgba(0,255,135,0.2); }
