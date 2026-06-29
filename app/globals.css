@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -15,26 +16,22 @@
   --muted: #8A8A82;
   --white: #FFFFFF;
   --green: #2A7D4F;
-  --admin-bg: #060D0A;
-  --admin-surface: #0D1F16;
-  --admin-card: #111F17;
-  --admin-border: rgba(255,255,255,0.07);
-  --neon: #00FF87;
-  --neon-dim: rgba(0,255,135,0.12);
+  --sidebar-w: 240px;
 }
 
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
   background: var(--canvas);
   color: var(--charcoal);
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
@@ -44,63 +41,78 @@ input, select, textarea { font-family: inherit; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50%       { opacity: 0.4; }
 }
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 12px rgba(0,255,135,0.15); }
-  50% { box-shadow: 0 0 28px rgba(0,255,135,0.35); }
-}
-@keyframes scan {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(400%); }
-}
-.fade-up { animation: fadeUp 0.25s ease forwards; }
-.glow-pulse { animation: glow 3s ease-in-out infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── LAYOUT ───────────────────────────────────────────────────────────── */
+.fade-up { animation: fadeUp 0.22s ease forwards; }
+
+/* ─── MOBILE DEFAULT ──────────────────────────────────────────────────── */
 .app-shell {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background: var(--canvas);
 }
 
-@media (min-width: 900px) {
+.sidebar   { display: none !important; }
+.bottom-nav { display: flex !important; }
+
+.main-content {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ─── DESKTOP ≥ 960px ─────────────────────────────────────────────────── */
+@media (min-width: 960px) {
   .app-shell {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    min-height: 100vh;
+    display: flex;
+    flex-direction: row;
   }
+
+  /* sidebar */
   .sidebar {
     display: flex !important;
     flex-direction: column;
-    background: var(--forest);
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    max-width: var(--sidebar-w);
+    min-height: 100vh;
     position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 240px;
-    padding: 24px 0;
+    top: 0; left: 0; bottom: 0;
     z-index: 200;
     overflow-y: auto;
+    background: var(--forest);
   }
-  .admin-sidebar {
-    background: #060D0A !important;
-    border-right: 1px solid rgba(0,255,135,0.08) !important;
-  }
+
+  /* main content shoved right of sidebar */
   .main-content {
-    margin-left: 240px;
+    margin-left: var(--sidebar-w);
+    width: calc(100vw - var(--sidebar-w));
+    min-width: 0;
+    min-height: 100vh;
   }
+
   .bottom-nav { display: none !important; }
-  .stat-grid { grid-template-columns: repeat(4, 1fr) !important; }
+
+  /* stat grids */
+  .stat-grid   { grid-template-columns: repeat(4, 1fr) !important; }
   .stat-grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
 }
 
-@media (max-width: 899px) {
-  .sidebar { display: none !important; }
-  .main-content { margin-left: 0; }
+/* Admin portal override — dark bg, no forest sidebar */
+.admin-shell {
+  background: #0B0F0D;
 }
 
-/* Admin dark scrollbar */
-.admin-scroll::-webkit-scrollbar-thumb { background: rgba(0,255,135,0.2); }
+@media (min-width: 960px) {
+  .admin-shell .sidebar {
+    background: #0B0F0D !important;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .admin-shell .main-content {
+    background: #0B0F0D;
+  }
+}
