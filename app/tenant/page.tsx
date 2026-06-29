@@ -5,7 +5,7 @@ import { getSession, clearSession } from '@/lib/session'
 import Logo from '@/components/Logo'
 import {
   Building2, MessageCircle, Settings, MapPin, Star,
-  CreditCard, CheckCircle, AlertTriangle, X, Send,
+  CreditCard, CheckCircle, AlertTriangle, X, Send, Upload, FileCheck,
   LogOut, Eye, EyeOff, Lock, ArrowLeft, Download,
   ChevronRight, Smartphone, Landmark, Clock, Plus,
   Wifi, Shield, Car, Zap, Droplets, Tv, Wind,
@@ -213,6 +213,26 @@ export default function TenantDashboard() {
       if (res.ok) { clearSession(); router.push('/') }
       else showToast('Failed to delete account')
     } finally { setSaving(false) }
+  }
+
+  const [uploadingId, setUploadingId] = useState(false)
+
+  async function uploadIdDoc(file: File) {
+    setUploadingId(true)
+    try {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string
+        const res = await apiFetch('/api/tenant/upload-id', {
+          method: 'POST',
+          body: JSON.stringify({ doc_base64: base64, doc_name: file.name })
+        })
+        if (res.ok) { showToast('ID uploaded — under review'); fetchData() }
+        else showToast('Upload failed')
+        setUploadingId(false)
+      }
+      reader.readAsDataURL(file)
+    } catch { showToast('Upload failed'); setUploadingId(false) }
   }
 
   const NAV = [
@@ -581,6 +601,42 @@ export default function TenantDashboard() {
                     <input value={editPhone} onChange={e => setEditPhone(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}/>
                   </div>
                   <button onClick={saveProfile} disabled={saving} style={{ width: '100%', padding: '12px', border: 'none', borderRadius: 12, background: C.forest, color: C.white, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>Save Changes</button>
+                </div>
+
+                {/* National ID verification */}
+                <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, padding: 20 }}>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: C.charcoal, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}><FileCheck size={15}/> National ID Verification</div>
+                  <div style={{ fontSize: 13, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>Upload a photo of your national ID or passport to verify your identity.</div>
+                  {(!profile?.id_status || profile?.id_status === 'none') && (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.canvas, border: `1.5px dashed ${C.border}`, borderRadius: 12, padding: '12px 16px', cursor: 'pointer', color: C.muted, fontSize: 14, fontWeight: 600 }}>
+                      <input type="file" accept=".jpg,.jpeg,.png,.pdf" style={{ display: 'none' }}
+                        onChange={e => { if (e.target.files?.[0]) uploadIdDoc(e.target.files[0]) }}/>
+                      <Upload size={16}/>
+                      {uploadingId ? 'Uploading...' : 'Upload National ID / Passport'}
+                    </label>
+                  )}
+                  {profile?.id_status === 'under_review' && (
+                    <div style={{ background: '#FFF8EC', border: `1px solid ${C.ochre}30`, borderRadius: 12, padding: '12px 16px', fontSize: 14, color: C.ochre, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      ⏳ Under Review — admin is verifying your ID
+                    </div>
+                  )}
+                  {profile?.id_status === 'verified' && (
+                    <div style={{ background: C.mint, border: `1px solid ${C.green}30`, borderRadius: 12, padding: '12px 16px', fontSize: 14, color: C.green, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <CheckCircle size={16}/> Identity Verified
+                    </div>
+                  )}
+                  {profile?.id_status === 'rejected' && (
+                    <div>
+                      <div style={{ background: C.red + '10', border: `1px solid ${C.red}30`, borderRadius: 12, padding: '12px 16px', fontSize: 14, color: C.red, fontWeight: 700, marginBottom: 10 }}>
+                        ✗ ID Rejected — please upload a clearer copy
+                      </div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.canvas, border: `1.5px dashed ${C.border}`, borderRadius: 12, padding: '12px 16px', cursor: 'pointer', color: C.muted, fontSize: 14, fontWeight: 600 }}>
+                        <input type="file" accept=".jpg,.jpeg,.png,.pdf" style={{ display: 'none' }}
+                          onChange={e => { if (e.target.files?.[0]) uploadIdDoc(e.target.files[0]) }}/>
+                        <Upload size={16}/> Re-upload ID
+                      </label>
+                    </div>
+                  )}
                 </div>
 
                 {/* Password */}
