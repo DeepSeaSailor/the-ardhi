@@ -8,7 +8,7 @@ import {
   Building2, Users, CreditCard, Bell, List, Settings, Download, FileSpreadsheet,
   Plus, AlertTriangle, CheckCircle, MapPin, X,
   Copy, Phone, IdCard, DoorOpen, Trash2, Pencil,
-  LogOut, Image as ImageIcon, Wifi, Shield, Car,
+  LogOut, Image as ImageIcon, Upload, FileCheck, Wifi, Shield, Car,
   Zap, Droplets, Tv, Wind, Waves, Dumbbell, Trees,
   Coffee, Utensils, Flame, Sun, Lock, Dog, Star, Eye, EyeOff,
   MessageSquare, ChevronLeft, ChevronRight, RefreshCw, Key
@@ -147,6 +147,8 @@ export default function LandlordDashboard() {
   const [showAddListing, setShowAddListing] = useState(false)
   const [showCode, setShowCode] = useState<string | null>(null)
   const [showCodeLabel, setShowCodeLabel] = useState('')
+  const [uploadingDocPropId, setUploadingDocPropId] = useState<string | null>(null)
+  const [uploadingDoc, setUploadingDoc] = useState(false)
   const [toast, setToast] = useState({ show: false, msg: '' })
   const [saving, setSaving] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -203,6 +205,44 @@ export default function LandlordDashboard() {
   useEffect(() => { if (userId) fetchData() }, [userId, fetchData])
 
   function signOut() { clearSession(); router.push('/') }
+
+  async function uploadOwnershipDoc(propId: string, file: File) {
+    setUploadingDoc(true)
+    try {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string
+        const res = await apiFetch(`/api/landlord/properties/${propId}/upload-doc`, {
+          method: 'POST',
+          body: JSON.stringify({ doc_base64: base64, doc_name: file.name })
+        })
+        if (res.ok) {
+          showToast('Document uploaded — under review')
+          fetchData()
+        } else {
+          const d = await res.json()
+          showToast(d.error || 'Upload failed')
+        }
+        setUploadingDocPropId(null)
+        setUploadingDoc(false)
+      }
+      reader.readAsDataURL(file)
+    } catch {
+      showToast('Upload failed')
+      setUploadingDoc(false)
+    }
+  }
+
+  function OwnershipStatusBadge({ status }: { status: string }) {
+    const map: Record<string, { color: string; label: string }> = {
+      none: { color: C.muted, label: 'No ownership doc' },
+      under_review: { color: C.ochre, label: '⏳ Under Review' },
+      verified: { color: C.green, label: '✓ Ownership Verified' },
+      rejected: { color: C.red, label: '✗ Doc Rejected' },
+    }
+    const s = map[status] || map['none']
+    return <span style={{ background: s.color + '18', color: s.color, border: `1px solid ${s.color}30`, borderRadius: 6, padding: '3px 9px', fontSize: 11, fontWeight: 700 }}>{s.label}</span>
+  }
 
   async function deleteLandlordAccount() {
     setSaving(true)
