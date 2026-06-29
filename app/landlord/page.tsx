@@ -5,12 +5,12 @@ import Logo from '@/components/Logo'
 import Sidebar from '@/components/Sidebar'
 import { getSession, clearSession } from '@/lib/session'
 import {
-  LayoutDashboard, Building2, Users, CreditCard, Bell, List,
+  LayoutDashboard, Building2, Users, CreditCard, Bell, List, Settings,
   Plus, ChevronRight, AlertTriangle, CheckCircle, MapPin, X,
   Copy, RefreshCw, Phone, IdCard, DoorOpen, Trash2, Pencil,
   LogOut, Upload, Image as ImageIcon, Wifi, Shield, Car,
   Zap, Droplets, Tv, Wind, Waves, Dumbbell, Trees,
-  Coffee, Utensils, Flame, Sun, Lock, Dog, Star
+  Coffee, Utensils, Flame, Sun, Lock, Dog, Star, Eye, EyeOff
 } from 'lucide-react'
 
 const C = {
@@ -129,6 +129,10 @@ export default function LandlordDashboard() {
   const [showCode, setShowCode] = useState<string | null>(null)
   const [toast, setToast] = useState({ show: false, msg: '' })
   const [saving, setSaving] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [showNewPass, setShowNewPass] = useState(false)
 
   const [newProp, setNewProp] = useState({ name: '', type: 'apartment', location: '', total_units: '' })
   const [newTenant, setNewTenant] = useState({ full_name: '', national_id: '', phone: '', email: '', unit: '', rent: '' })
@@ -173,6 +177,25 @@ export default function LandlordDashboard() {
   useEffect(() => { if (userId) fetchData() }, [userId, fetchData])
 
   function signOut() { clearSession(); router.push('/') }
+
+  async function deleteLandlordAccount() {
+    setSaving(true)
+    try {
+      const res = await apiFetch('/api/auth/delete-account', { method: 'DELETE' })
+      if (res.ok) { clearSession(); router.push('/') }
+      else { const d = await res.json(); showToast(d.error || 'Failed to delete account') }
+    } finally { setSaving(false) }
+  }
+
+  async function changeLandlordPassword() {
+    if (newPassword.length < 6) { showToast('Password must be at least 6 characters'); return }
+    setSaving(true)
+    try {
+      const res = await apiFetch('/api/auth/change-password', { method: 'POST', body: JSON.stringify({ password: newPassword }) })
+      if (res.ok) { showToast('Password changed'); setNewPassword('') }
+      else showToast('Failed — try again')
+    } finally { setSaving(false) }
+  }
 
   async function addProperty() {
     if (!newProp.name || !newProp.location || !newProp.total_units) { showToast('Please fill all fields'); return }
@@ -268,6 +291,7 @@ export default function LandlordDashboard() {
     { key: 'payments', icon: <CreditCard size={20}/>, label: 'Payments' },
     { key: 'alerts', icon: <Bell size={20}/>, label: 'Alerts', badge: unread },
     { key: 'listings', icon: <List size={20}/>, label: 'Listings' },
+    { key: 'settings', icon: <Settings size={20}/>, label: 'Settings' },
   ]
 
   if (loading) return (
@@ -477,6 +501,58 @@ export default function LandlordDashboard() {
               </div>
             ))}
             {alerts.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: C.muted }}>No alerts yet.</div>}
+          </div>
+        )}
+
+        {/* SETTINGS */}
+        {tab === 'settings' && (
+          <div>
+            {/* Change Password */}
+            <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, padding: 20, marginBottom: 14 }}>
+              <div style={{ fontWeight: 800, fontSize: 16, color: C.charcoal, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Lock size={16}/> Change Password</div>
+              <div style={{ position: 'relative', marginBottom: 12 }}>
+                <input type={showNewPass ? 'text' : 'password'} placeholder="New password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+                  style={{ width: '100%', padding: '12px 44px 12px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}/>
+                <button onClick={() => setShowNewPass(!showNewPass)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: C.muted, cursor: 'pointer' }}>
+                  {showNewPass ? <EyeOff size={16}/> : <Eye size={16}/>}
+                </button>
+              </div>
+              <button onClick={changeLandlordPassword} disabled={saving || newPassword.length < 6}
+                style={{ width: '100%', padding: '12px', border: 'none', borderRadius: 12, background: newPassword.length >= 6 ? C.ochre : C.border, color: C.white, fontWeight: 700, cursor: 'pointer', fontSize: 14, opacity: newPassword.length < 6 ? 0.6 : 1 }}>
+                Update Password
+              </button>
+            </div>
+
+            {/* Sign out */}
+            <button onClick={signOut}
+              style={{ width: '100%', padding: '14px', border: `1px solid ${C.red}30`, borderRadius: 16, background: C.red + '08', color: C.red, fontWeight: 700, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 10 }}>
+              <LogOut size={18}/> Sign Out
+            </button>
+
+            {/* Delete account */}
+            {!showDeleteConfirm ? (
+              <button onClick={() => setShowDeleteConfirm(true)}
+                style={{ width: '100%', padding: '12px', border: 'none', borderRadius: 16, background: 'transparent', color: C.muted, fontWeight: 600, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+                Delete my account
+              </button>
+            ) : (
+              <div style={{ background: '#FFF5F5', border: `1px solid ${C.red}30`, borderRadius: 16, padding: 20 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, color: C.red, marginBottom: 6 }}>⚠️ Delete Account</div>
+                <div style={{ fontSize: 13, color: C.body, lineHeight: 1.6, marginBottom: 16 }}>
+                  This permanently deletes your account, all properties, tenancies, and data. Cannot be undone. Type <strong>DELETE</strong> to confirm.
+                </div>
+                <input placeholder="Type DELETE to confirm" value={deleteConfirmText} onChange={e => setDeleteConfirmText(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1.5px solid ${C.red}50`, fontSize: 14, outline: 'none', background: C.white, marginBottom: 12, boxSizing: 'border-box' as const }}/>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }}
+                    style={{ flex: 1, padding: '11px', border: `1px solid ${C.border}`, borderRadius: 10, background: C.white, color: C.muted, fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>Cancel</button>
+                  <button onClick={deleteLandlordAccount} disabled={deleteConfirmText !== 'DELETE' || saving}
+                    style={{ flex: 1, padding: '11px', border: 'none', borderRadius: 10, background: deleteConfirmText === 'DELETE' ? C.red : C.border, color: C.white, fontWeight: 700, cursor: deleteConfirmText === 'DELETE' ? 'pointer' : 'not-allowed', fontSize: 14 }}>
+                    {saving ? 'Deleting...' : 'Delete Account'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
