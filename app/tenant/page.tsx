@@ -172,8 +172,13 @@ export default function TenantDashboard() {
     try {
       const res = await apiFetch('/api/tenant/link-property', { method: 'POST', body: JSON.stringify({ invite_code: inviteCode.toUpperCase() }) })
       const d = await res.json()
-      if (res.ok) { showToast('Property linked!'); setShowLinkProp(false); setInviteCode(''); fetchData() }
-      else showToast(d.error || 'Invalid code')
+      if (res.ok) {
+        showToast('Property linked!')
+        setShowLinkProp(false)
+        setInviteCode('')
+        // Small delay then refetch so DB has time to commit
+        setTimeout(() => fetchData(), 800)
+      } else showToast(d.error || 'Invalid code')
     } finally { setSaving(false) }
   }
 
@@ -490,7 +495,7 @@ export default function TenantDashboard() {
               {tenancies.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '56px 24px', background: C.white, borderRadius: 20, border: `1px solid ${C.border}` }}>
                   <Building2 size={52} color={C.border} style={{ margin: '0 auto 16px' }}/>
-                  <div style={{ fontWeight: 800, fontSize: 18, color: C.charcoal, marginBottom: 8 }}>No properties linked</div>
+                  <div style={{ fontWeight: 800, fontSize: 18, color: C.charcoal, marginBottom: 8 }}>No properties linked yet</div>
                   <div style={{ color: C.muted, fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 300, margin: '0 auto 24px' }}>
                     Ask your landlord for an invite code, then tap below to link your rental.
                   </div>
@@ -537,8 +542,8 @@ export default function TenantDashboard() {
                       )
                     })}
                   </div>
-                  <button onClick={() => setShowLinkProp(true)} style={{ width: '100%', padding: '13px', border: `1.5px dashed ${C.border}`, borderRadius: 16, background: 'transparent', color: C.muted, fontWeight: 600, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
-                    <Plus size={15}/> Link another property
+                  <button onClick={() => setShowLinkProp(true)} style={{ width: '100%', padding: '13px', border: `1.5px dashed ${C.border}`, borderRadius: 16, background: 'transparent', color: C.forest, fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8 }}>
+                    <Plus size={16}/> Link another property
                   </button>
                 </>
               )}
