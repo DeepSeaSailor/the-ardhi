@@ -5,7 +5,7 @@ import Logo from '@/components/Logo'
 import Sidebar from '@/components/Sidebar'
 import { getSession, clearSession } from '@/lib/session'
 import {
-  LayoutDashboard, Building2, Users, CreditCard, Bell, List, Settings,
+  LayoutDashboard, Building2, Users, CreditCard, Bell, List, Settings, Download, FileSpreadsheet,
   Plus, ChevronRight, AlertTriangle, CheckCircle, MapPin, X,
   Copy, RefreshCw, Phone, IdCard, DoorOpen, Trash2, Pencil,
   LogOut, Upload, Image as ImageIcon, Wifi, Shield, Car,
@@ -122,6 +122,11 @@ export default function LandlordDashboard() {
   const [loading, setLoading] = useState(true)
   const [selectedProp, setSelectedProp] = useState<any>(null)
   const [showAddProp, setShowAddProp] = useState(false)
+  const [showExport, setShowExport] = useState(false)
+  const [exportPropId, setExportPropId] = useState('')
+  const [exportFrom, setExportFrom] = useState('')
+  const [exportTo, setExportTo] = useState('')
+  const [exporting, setExporting] = useState(false)
   const [editingProp, setEditingProp] = useState<any>(null)
   const [editProp, setEditProp] = useState({ name: '', type: 'apartment', location: '', total_units: '' })
   const [showAddTenant, setShowAddTenant] = useState(false)
@@ -195,6 +200,27 @@ export default function LandlordDashboard() {
       if (res.ok) { showToast('Password changed'); setNewPassword('') }
       else showToast('Failed — try again')
     } finally { setSaving(false) }
+  }
+
+  async function runExport() {
+    if (!exportPropId) { showToast('Select a property'); return }
+    setExporting(true)
+    try {
+      const params = new URLSearchParams({ property_id: exportPropId })
+      if (exportFrom) params.set('date_from', exportFrom)
+      if (exportTo) params.set('date_to', exportTo)
+      const res = await apiFetch('/api/landlord/export?' + params.toString())
+      if (!res.ok) { const d = await res.json(); showToast(d.error || 'Export failed'); return }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      const cd = res.headers.get('Content-Disposition') || ''
+      const fn = cd.match(/filename="(.+)"/)?.[1] || 'Ardhi-Export.xlsx'
+      a.href = url; a.download = fn; a.click()
+      URL.revokeObjectURL(url)
+      showToast('Export downloaded!')
+      setShowExport(false)
+    } finally { setExporting(false) }
   }
 
   async function addProperty() {
@@ -378,7 +404,10 @@ export default function LandlordDashboard() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h2 style={{ fontWeight: 800, fontSize: 20, color: C.charcoal, margin: 0 }}>Properties</h2>
-              <Btn variant="ochre" size="sm" onClick={() => setShowAddProp(true)}><Plus size={15}/> Add</Btn>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <Btn variant="ghost" size="sm" onClick={() => setShowExport(true)}><FileSpreadsheet size={15}/> Export</Btn>
+                <Btn variant="ochre" size="sm" onClick={() => setShowAddProp(true)}><Plus size={15}/> Add</Btn>
+              </div>
             </div>
             {properties.length === 0 && (
               <div style={{ textAlign: 'center', padding: '48px 20px', background: C.white, borderRadius: 20, border: `1px solid ${C.border}` }}>
@@ -631,6 +660,43 @@ export default function LandlordDashboard() {
         <div style={{ display: 'flex', gap: 10 }}>
           <Btn variant="ghost" onClick={() => setShowAddProp(false)} full>Cancel</Btn>
           <Btn variant="primary" onClick={addProperty} full disabled={saving}>{saving ? 'Saving...' : 'Add Property'}</Btn>
+        </div>
+      </Modal>
+
+      {/* Export Modal */}
+      <Modal open={showExport} onClose={() => setShowExport(false)} title="Export to Excel">
+        <div style={{ background: C.mint, borderRadius: 12, padding: '12px 16px', marginBottom: 18, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <FileSpreadsheet size={18} color={C.forest} style={{ marginTop: 2, flexShrink: 0 }}/>
+          <div style={{ fontSize: 13, color: C.forest, lineHeight: 1.6 }}>
+            Exports a full Excel report with 5 sheets: <strong>Summary, Units, Tenants, Contacts, Payments</strong> for the selected property and period.
+          </div>
+        </div>
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Property</label>
+          <select value={exportPropId} onChange={e => setExportPropId(e.target.value)}
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}>
+            <option value="">Select property...</option>
+            {properties.map((p: any) => <option key={p.id} value={p.id}>{p.name} — {p.location}</option>)}
+          </select>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>From Date</label>
+            <input type="date" value={exportFrom} onChange={e => setExportFrom(e.target.value)}
+              style={{ width: '100%', padding: '11px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}/>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>To Date</label>
+            <input type="date" value={exportTo} onChange={e => setExportTo(e.target.value)}
+              style={{ width: '100%', padding: '11px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}/>
+          </div>
+        </div>
+        <div style={{ fontSize: 12, color: C.muted, marginBottom: 16 }}>Leave dates blank to export all records.</div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <Btn variant="ghost" onClick={() => setShowExport(false)} full>Cancel</Btn>
+          <Btn variant="primary" onClick={runExport} full disabled={!exportPropId || exporting}>
+            <Download size={15}/> {exporting ? 'Generating...' : 'Download Excel'}
+          </Btn>
         </div>
       </Modal>
 
