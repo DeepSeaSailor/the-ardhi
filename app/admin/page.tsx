@@ -213,7 +213,7 @@ export default function AdminDashboard() {
 
         {/* Nav */}
         <div style={{ padding:'16px 12px', flex:1 }}>
-          {NAV.map(n => <NavItem key={n.key} {...n} active={tab===n.key} onClick={() => setTab(n.key)}/>)}
+          {NAV.map(({ key: nk, ...rest }) => <NavItem key={nk} {...rest} active={tab===nk} onClick={() => setTab(nk)}/>)}
         </div>
 
         {/* User */}
@@ -703,8 +703,8 @@ export default function AdminDashboard() {
 
       {/* Mobile bottom nav */}
       <div className="bottom-nav" style={{ position:'fixed', bottom:0, left:0, right:0, background: C.sidebar, borderTop:'1px solid rgba(255,255,255,0.08)', display:'flex', zIndex:100 }}>
-        {NAV.map(n => (
-          <button key={n.key} onClick={()=>setTab(n.key)} style={{ flex:1, padding:'10px 2px', border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, color:tab===n.key?C.accent:'rgba(255,255,255,0.35)', position:'relative' }}>
+        {NAV.map(({ key: nk, ...nrest }) => (
+          <button key={nk} onClick={()=>setTab(nk)} style={{ flex:1, padding:'10px 2px', border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, color:tab===n.key?C.accent:'rgba(255,255,255,0.35)', position:'relative' }}>
             {(n.badge??0)>0 && <div style={{ position:'absolute', top:5, right:'50%', transform:'translateX(10px)', background:C.red, color:'#fff', borderRadius:20, minWidth:15, height:15, fontSize:9, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center' }}>{n.badge}</div>}
             {n.icon}
             <div style={{ fontSize:9, fontWeight:tab===n.key?700:400 }}>{n.label}</div>
