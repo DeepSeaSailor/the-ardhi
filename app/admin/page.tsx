@@ -707,7 +707,7 @@ export default function AdminDashboard() {
           <button key={nk} onClick={()=>setTab(nk)} style={{ flex:1, padding:'10px 2px', border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, color:tab===nk?C.accent:'rgba(255,255,255,0.35)', position:'relative' }}>
             {(nrest.badge??0)>0 && <div style={{ position:'absolute', top:5, right:'50%', transform:'translateX(10px)', background:C.red, color:'#fff', borderRadius:20, minWidth:15, height:15, fontSize:9, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center' }}>{nrest.badge}</div>}
             {nrest.icon}
-            <div style={{ fontSize:9, fontWeight:tab===nk?700:400 }}>{n.label}</div>
+            <div style={{ fontSize:9, fontWeight:tab===nk?700:400 }}>{nrest.label}</div>
             {tab===nk && <div style={{ position:'absolute', top:0, left:'50%', transform:'translateX(-50%)', width:20, height:2, background:C.accent, borderRadius:'0 0 3px 3px' }}/>}
           </button>
         ))}
