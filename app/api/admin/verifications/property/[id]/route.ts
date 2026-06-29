@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-server'
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { status } = await req.json() // 'verified' | 'rejected'
+    const { id } = await params
+    const { status } = await req.json()
     const supabase = getSupabaseAdmin()
     const { error } = await supabase.from('properties')
       .update({ ownership_status: status })
-      .eq('id', params.id)
+      .eq('id', id)
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json({ ok: true })
   } catch (e: any) { return NextResponse.json({ error: e.message }, { status: 500 }) }
