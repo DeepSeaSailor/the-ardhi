@@ -7,13 +7,13 @@ export async function POST(req: NextRequest) {
     const { invite_code } = await req.json()
     const supabase = getSupabaseAdmin()
 
-    // Support both base code ("7A87UZ") and unit-specific code ("7A87UZ-U1")
+    // Support base code ("7A87UZ") and unit-specific code ("7A87UZ-U1")
     const raw = invite_code.toUpperCase().trim()
     const unitMatch = raw.match(/^(.+)-U(\d+)$/)
     const baseCode = unitMatch ? unitMatch[1] : raw
     const unitNumber = unitMatch ? parseInt(unitMatch[2]) : null
 
-    // Find property by base invite code
+    // Find property
     const { data: property } = await supabase
       .from('properties')
       .select('id, landlord_id, name, total_units')
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       .eq('tenant_id', tenant_id)
       .eq('property_id', property.id)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
 
     if (existing) {
       return NextResponse.json(
@@ -43,59 +43,75 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Try units table first
+    // Find a unit to assign
     let unit: any = null
 
     if (unitNumber) {
-      const { data: specificUnit } = await supabase
+      // Try to find the specific unit number
+      const { data: u } = await supabase
         .from('units')
         .select('id, unit_number, rent_amount')
         .eq('property_id', property.id)
-        .or('unit_number.eq.' + unitNumber + ',unit_number.eq.Unit ' + unitNumber)
-        .limit(1)
+        .eq('unit_number', String(unitNumber))
         .maybeSingle()
-      unit = specificUnit
+      unit = u
     }
 
     if (!unit) {
-      const { data: vacantUnit } = await supabase
+      // Any vacant unit
+      const { data: u } = await supabase
         .from('units')
         .select('id, unit_number, rent_amount')
         .eq('property_id', property.id)
         .eq('is_occupied', false)
         .limit(1)
         .maybeSingle()
-      unit = vacantUnit
+      unit = u
     }
 
-    if (unit) {
-      // Insert using units table — include landlord_id only if column exists
-      const { data: tenancy, error } = await supabase.from('tenancies').insert({
+    if (!unit) {
+      // No units rows at all — auto-create one for this unit number
+      const num = unitNumber || 1
+      const { data: newUnit, error: uErr } = await supabase
+        .from('units')
+        .insert({
+          property_id: property.id,
+          unit_number: String(num),
+          rent_amount: 0,
+          is_occupied: false,
+        })
+        .select()
+        .single()
+
+      if (uErr) {
+        return NextResponse.json({ error: 'Could not assign a unit: ' + uErr.message }, { status: 400 })
+      }
+      unit = newUnit
+    }
+
+    // Create tenancy — only columns that exist in schema
+    const { data: tenancy, error } = await supabase
+      .from('tenancies')
+      .insert({
         tenant_id,
         unit_id: unit.id,
         property_id: property.id,
-        rent_amount: unit.rent_amount,
+        rent_amount: unit.rent_amount || 0,
         is_active: true,
-        start_date: new Date().toISOString().slice(0, 10),
-      }).select().single()
-
-      if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-      await supabase.from('units').update({ is_occupied: true }).eq('id', unit.id)
-      return NextResponse.json({ data: tenancy, property_name: property.name })
-    }
-
-    // No units rows — create tenancy directly (minimal columns)
-    const assignedUnit = unitNumber || 1
-    const { data: tenancy, error } = await supabase.from('tenancies').insert({
-      tenant_id,
-      property_id: property.id,
-      unit_number: String(assignedUnit),
-      rent_amount: 0,
-      is_active: true,
-      start_date: new Date().toISOString().slice(0, 10),
-    }).select().single()
+      })
+      .select()
+      .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+    // Mark unit occupied
+    await supabase.from('units').update({ is_occupied: true }).eq('id', unit.id)
+
+    // Increment occupied count on property
+    try {
+      await supabase.rpc('increment_occupied', { prop_id: property.id })
+    } catch (_) {}
+
     return NextResponse.json({ data: tenancy, property_name: property.name })
 
   } catch (e: any) {
