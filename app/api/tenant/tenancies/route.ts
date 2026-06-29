@@ -7,10 +7,10 @@ export async function GET(req: NextRequest) {
     if (!tenant_id) return NextResponse.json({ data: [] })
     const supabase = getSupabaseAdmin()
 
-    // Step 1: fetch raw tenancies — no joins, minimal columns
+    // Fetch tenancies — exact schema columns only
     const { data: tenancies, error } = await supabase
       .from('tenancies')
-      .select('*')
+      .select('id, unit_id, property_id, start_date, end_date, rent_amount, is_active, created_at')
       .eq('tenant_id', tenant_id)
       .order('created_at', { ascending: false })
 
@@ -19,20 +19,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    if (!tenancies || tenancies.length === 0) {
-      return NextResponse.json({ data: [] })
-    }
+    if (!tenancies || tenancies.length === 0) return NextResponse.json({ data: [] })
 
-    // Step 2: enrich each tenancy separately
+    // Enrich each row separately — no joins
     const results = await Promise.all(tenancies.map(async (t: any) => {
-      let unit_number = t.unit_number || null
-      let rent_amount = t.rent_amount || 0
-      let property_name = null
-      let property_location = null
-      let property_type = null
+      let unit_number = '1'
+      let property_name = 'Property'
+      let property_location = ''
+      let property_type = ''
       let amenities: string[] = []
 
-      // Try to get unit info if unit_id exists
+      // Get unit
       if (t.unit_id) {
         const { data: unit } = await supabase
           .from('units')
@@ -40,12 +37,12 @@ export async function GET(req: NextRequest) {
           .eq('id', t.unit_id)
           .maybeSingle()
         if (unit) {
-          unit_number = unit.unit_number || unit_number
-          rent_amount = unit.rent_amount || rent_amount
+          unit_number = unit.unit_number || '1'
+          if (!t.rent_amount) t.rent_amount = unit.rent_amount
         }
       }
 
-      // Get property info
+      // Get property
       if (t.property_id) {
         const { data: prop } = await supabase
           .from('properties')
@@ -62,9 +59,8 @@ export async function GET(req: NextRequest) {
 
       return {
         ...t,
-        is_active: t.is_active ?? true,
         unit_number,
-        rent_amount,
+        rent_amount: t.rent_amount || 0,
         property_name,
         property_location,
         property_type,
