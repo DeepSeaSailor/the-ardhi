@@ -490,7 +490,7 @@ export default function LandlordDashboard() {
             </div>
           </div>
 
-          <div style={{ flex: 1, padding: '16px', maxWidth: 700, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
+          <div style={{ flex: 1, padding: '24px 28px', maxWidth: 960, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
             <SectionTab tabs={detailTabs} active={propDetailTab} onChange={setPropDetailTab}/>
 
             {/* TENANTS */}
