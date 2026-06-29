@@ -12,12 +12,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const supabase = getSupabaseAdmin()
     const base64Data = doc_base64.replace(/^data:[^;]+;base64,/, '')
     const buffer = Buffer.from(base64Data, 'base64')
-    const ext = doc_name.split('.').pop() || 'pdf'
-    const storagePath = \`ownership/\${id}/\${Date.now()}.\${ext}\`
+    const ext = (doc_name.split('.').pop() || 'pdf') as string
+    const storagePath = 'ownership/' + id + '/' + Date.now() + '.' + ext
 
     const { error: upErr } = await supabase.storage
       .from('documents')
-      .upload(storagePath, buffer, { contentType: \`application/\${ext === 'pdf' ? 'pdf' : 'octet-stream'}\`, upsert: true })
+      .upload(storagePath, buffer, { contentType: 'application/' + (ext === 'pdf' ? 'pdf' : 'octet-stream'), upsert: true })
 
     let docUrl = '[document uploaded]'
     if (!upErr) {
