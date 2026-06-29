@@ -460,7 +460,7 @@ export default function TenantDashboard() {
       </div>
 
       {/* Main content */}
-      <div className="main-content" style={{ flex: 1, paddingBottom: 80, minHeight: '100vh' }}>
+      <div className="main-content" style={{ flex: 1, paddingBottom: 80, minHeight: '100vh', width: '100%', minWidth: 0 }}>
         {/* Sticky header */}
         <div style={{ background: `linear-gradient(160deg, ${C.forest} 0%, ${C.forestLight} 100%)`, padding: '16px 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -482,7 +482,7 @@ export default function TenantDashboard() {
           </div>
         </div>
 
-        <div style={{ padding: '20px 16px', maxWidth: 720, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
+        <div style={{ padding: '24px 28px', maxWidth: 960, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
 
           {/* PROPERTIES */}
           {tab === 'properties' && (
