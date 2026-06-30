@@ -17,10 +17,33 @@ export async function POST(req: NextRequest) {
     const user_id = req.headers.get('x-user-id') || body.tenant_id
     const supabase = getSupabaseAdmin()
     const { data: tenancy } = await supabase.from('tenancies').select('unit_id').eq('tenant_id', user_id).eq('is_active', true).single()
+
+    let photo_url: string | null = null
+    if (body.photo_base64) {
+      const base64Data = body.photo_base64.replace(/^data:[^;]+;base64,/, '')
+      const buffer = Buffer.from(base64Data, 'base64')
+      const ext = ((body.photo_name || 'jpg').split('.').pop() || 'jpg').toLowerCase()
+      const storagePath = 'complaints/' + user_id + '/' + Date.now() + '.' + ext
+
+      const { error: upErr } = await supabase.storage
+        .from('documents')
+        .upload(storagePath, buffer, { contentType: 'image/' + (ext === 'jpg' ? 'jpeg' : ext), upsert: true })
+
+      if (!upErr) {
+        const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(storagePath)
+        photo_url = publicUrl
+      }
+    }
+
     const { data, error } = await supabase.from('complaints').insert({
-      tenant_id: user_id, property_id: body.property_id, unit_id: body.unit_id || tenancy?.unit_id,
-      description: body.description, status: 'pending',
+      tenant_id: user_id,
+      property_id: body.property_id,
+      unit_id: body.unit_id || tenancy?.unit_id,
+      description: body.description,
+      photo_url,
+      status: 'pending',
     }).select().single()
+
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json({ data })
   } catch (e: any) { return NextResponse.json({ error: e.message }, { status: 500 }) }
