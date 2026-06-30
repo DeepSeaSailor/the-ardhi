@@ -11,7 +11,7 @@ import {
   LogOut, Image as ImageIcon, Upload, FileCheck, Wifi, Shield, Car,
   Zap, Droplets, Tv, Wind, Waves, Dumbbell, Trees,
   Coffee, Utensils, Flame, Sun, Lock, Dog, Star, Eye, EyeOff,
-  MessageSquare, ChevronLeft, ChevronRight, RefreshCw, Key
+  MessageSquare, ChevronLeft, ChevronRight, RefreshCw, Key, Camera, Edit2
 } from 'lucide-react'
 
 const C = {
