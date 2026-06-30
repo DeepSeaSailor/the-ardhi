@@ -860,7 +860,11 @@ export default function LandlordDashboard() {
                 <Bell size={18}/>
                 {totalNotifs > 0 && <span style={{ position: 'absolute', top: -4, right: -4, background: C.red, color: C.white, borderRadius: 10, minWidth: 16, height: 16, fontSize: 9, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{totalNotifs}</span>}
               </button>
-              <div style={{ width: 34, height: 34, borderRadius: '50%', background: C.ochre, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 15 }}>L</div>
+              <button onClick={() => setTab('settings')} style={{ width: 34, height: 34, borderRadius: '50%', background: C.ochre, border: 'none', padding: 0, cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 15, flexShrink: 0 }}>
+                {profile?.avatar_url
+                  ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                  : (profile?.full_name?.[0]?.toUpperCase() || 'L')}
+              </button>
             </div>
           </div>
           <div style={{ marginTop: 14 }}>
