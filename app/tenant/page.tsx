@@ -240,6 +240,29 @@ export default function TenantDashboard() {
     } catch { showToast('Upload failed'); setUploadingId(false) }
   }
 
+  async function uploadAvatar(file: File) {
+    setUploadingAvatar(true)
+    try {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string
+        const res = await apiFetch('/api/profile/avatar', {
+          method: 'POST',
+          body: JSON.stringify({ image_base64: base64, file_name: file.name })
+        })
+        const d = await res.json()
+        if (res.ok) {
+          setProfile((p: any) => ({ ...p, avatar_url: d.url }))
+          showToast('Profile photo updated')
+        } else {
+          showToast(d.error || 'Upload failed')
+        }
+        setUploadingAvatar(false)
+      }
+      reader.readAsDataURL(file)
+    } catch { showToast('Upload failed'); setUploadingAvatar(false) }
+  }
+
   const NAV = [
     { key: 'properties', icon: <Building2 size={21}/>, label: 'Properties' },
     { key: 'messages', icon: <MessageCircle size={21}/>, label: 'Messages', badge: unreadMessages },
