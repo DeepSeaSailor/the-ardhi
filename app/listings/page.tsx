@@ -43,7 +43,7 @@ export default function ListingsPage() {
 
   if (selected) return (
     <div style={{ minHeight: '100vh', background: C.canvas }}>
-      <div style={{ background: C.forest, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ background: C.forest, padding: 'calc(16px + env(safe-area-inset-top, 0px)) 20px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
         <button onClick={() => setSelected(null)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 10, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, cursor: 'pointer' }}><ArrowLeft size={18}/></button>
         <div style={{ color: C.white, fontWeight: 800, fontSize: 17 }}>{selected.title}</div>
       </div>
@@ -109,7 +109,7 @@ export default function ListingsPage() {
   return (
     <div style={{ minHeight: '100vh', background: C.canvas }}>
       {/* Header */}
-      <div style={{ background: C.forest, padding: '16px 20px 24px' }}>
+      <div style={{ background: C.forest, padding: 'calc(16px + env(safe-area-inset-top, 0px)) 20px 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <Logo size={34} />
           <a href="/" style={{ background: C.ochre, color: C.white, borderRadius: 10, padding: '9px 18px', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Sign In</a>
