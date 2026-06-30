@@ -702,7 +702,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Mobile bottom nav */}
-      <div className="bottom-nav" style={{ position:'fixed', bottom:0, left:0, right:0, background: C.sidebar, borderTop:'1px solid rgba(255,255,255,0.08)', display:'flex', zIndex:100 }}>
+      <div className="bottom-nav" style={{ position:'fixed', bottom:0, left:0, right:0, background: C.sidebar, borderTop:'1px solid rgba(255,255,255,0.08)', display:'flex', zIndex:100, paddingBottom:'env(safe-area-inset-bottom, 0px)' }}>
         {NAV.map(({ key: nk, ...nrest }) => (
           <button key={nk} onClick={()=>setTab(nk)} style={{ flex:1, padding:'10px 2px', border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, color:tab===nk?C.accent:'rgba(255,255,255,0.35)', position:'relative' }}>
             {(nrest.badge??0)>0 && <div style={{ position:'absolute', top:5, right:'50%', transform:'translateX(10px)', background:C.red, color:'#fff', borderRadius:20, minWidth:15, height:15, fontSize:9, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center' }}>{nrest.badge}</div>}
