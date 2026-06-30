@@ -3,51 +3,47 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
   const report: any = {}
 
   if (url && serviceKey) {
-    // Try the raw admin users endpoint directly (what listUsers/createUser hit under the hood)
+    // List all auth users
     try {
-      const res = await fetch(`${url}/auth/v1/admin/users?page=1&per_page=1`, {
-        headers: {
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
-        },
+      const res = await fetch(`${url}/auth/v1/admin/users?page=1&per_page=50`, {
+        headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
       })
-      report.adminListStatus = res.status
-      report.adminListStatusText = res.statusText
-      const text = await res.text()
-      report.adminListBody = text.slice(0, 500)
+      const data = await res.json()
+      report.authUsers = (data.users || []).map((u: any) => ({ id: u.id, email: u.email, created_at: u.created_at }))
+      report.authUserCount = report.authUsers.length
     } catch (e: any) {
-      report.adminListFetchError = e.message
-      report.adminListFetchErrorName = e.name
-      report.adminListFetchErrorCause = e.cause ? String(e.cause) : null
+      report.authUsersError = e.message
     }
 
-    // Try a raw createUser POST directly to see the real error
+    // List all profiles rows
     try {
-      const testEmail = `healthcheck_${Date.now()}@example.invalid`
-      const res2 = await fetch(`${url}/auth/v1/admin/users`, {
-        method: 'POST',
-        headers: {
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: testEmail, password: 'testpass123', email_confirm: true }),
+      const res2 = await fetch(`${url}/rest/v1/profiles?select=id,email,full_name,role`, {
+        headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
       })
-      report.createStatus = res2.status
-      report.createStatusText = res2.statusText
-      const text2 = await res2.text()
-      report.createBody = text2.slice(0, 800)
+      report.profiles = await res2.json()
+      report.profilesStatus = res2.status
     } catch (e: any) {
-      report.createFetchError = e.message
-      report.createFetchErrorName = e.name
-      report.createFetchErrorCause = e.cause ? String(e.cause) : null
+      report.profilesError = e.message
     }
-  } else {
-    report.error = 'missing url or service key'
+
+    // Try creating a genuinely fresh test email to confirm the trigger itself works
+    try {
+      const freshEmail = `freshtest_${Date.now()}@ardhi-debug.app`
+      const res3 = await fetch(`${url}/auth/v1/admin/users`, {
+        method: 'POST',
+        headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: freshEmail, password: 'testpass123', email_confirm: true, user_metadata: { full_name: 'Fresh Test', role: 'tenant' } }),
+      })
+      report.freshCreateStatus = res3.status
+      const text = await res3.text()
+      report.freshCreateBody = text.slice(0, 500)
+      report.freshTestEmail = freshEmail
+    } catch (e: any) {
+      report.freshCreateError = e.message
+    }
   }
 
   return NextResponse.json(report)
