@@ -457,7 +457,7 @@ export default function LandlordDashboard() {
         <Sidebar nav={sidebarNav} tab={tab} setTab={(t: string) => { setTab(t); setSelectedProp(null) }} onSignOut={signOut} role="Landlord"/>
         <div className="main-content" style={{ display: 'flex', flexDirection: 'column', paddingBottom: 80, minHeight: '100vh' }}>
           {/* Header */}
-          <div style={{ background: C.forest, padding: '16px 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
+          <div style={{ background: C.forest, padding: 'calc(16px + env(safe-area-inset-top, 0px)) 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <button onClick={() => setSelectedProp(null)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 10, padding: '7px 12px', color: C.white, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700 }}>
                 <ChevronLeft size={16}/> Properties
@@ -799,7 +799,7 @@ export default function LandlordDashboard() {
       <div className="main-content" style={{ display: 'flex', flexDirection: 'column', paddingBottom: 80, minHeight: '100vh' }}>
 
         {/* Header */}
-        <div style={{ background: C.forest, padding: '16px 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ background: C.forest, padding: 'calc(16px + env(safe-area-inset-top, 0px)) 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Logo size={34}/>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
