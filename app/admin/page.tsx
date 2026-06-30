@@ -99,7 +99,7 @@ function Modal({ open, onClose, title, children }: any) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
       <div style={{ background: C.white, borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ position: 'sticky', top: 0, background: C.white, padding: '18px 22px 14px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ position: 'sticky', top: 0, background: C.white, padding: 'calc(18px + env(safe-area-inset-top, 0px)) 22px 14px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontWeight: 800, fontSize: 17, color: C.charcoal }}>{title}</div>
           <button onClick={onClose} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.muted, cursor: 'pointer' }}><X size={15}/></button>
         </div>
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
       <div className="main-content" style={{ background: C.bg, minHeight:'100vh', paddingBottom:80 }}>
 
         {/* Top bar */}
-        <div style={{ background: C.white, borderBottom:`1px solid ${C.border}`, padding:'0 28px', height:64, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:100 }}>
+        <div style={{ background: C.white, borderBottom:`1px solid ${C.border}`, padding:'calc(0px + env(safe-area-inset-top, 0px)) 28px 0', minHeight:64, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:100 }}>
           <div>
             <div style={{ fontWeight:800, fontSize:20, color: C.charcoal }}>
               {NAV.find(n=>n.key===tab)?.label || 'Overview'}
