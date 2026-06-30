@@ -38,7 +38,7 @@ function Modal({ open, onClose, title, children }: any) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
       <div style={{ background: C.white, borderRadius: '24px 24px 0 0', width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ position: 'sticky', top: 0, background: C.white, padding: '20px 24px 16px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+        <div style={{ position: 'sticky', top: 0, background: C.white, padding: 'calc(20px + env(safe-area-inset-top, 0px)) 24px 16px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
           <h3 style={{ fontWeight: 800, fontSize: 18, color: C.charcoal, margin: 0 }}>{title}</h3>
           <button onClick={onClose} style={{ background: '#F5F5F3', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: C.muted }}><X size={16}/></button>
         </div>
@@ -277,7 +277,7 @@ export default function TenantDashboard() {
           </div>
           {/* Main */}
           <div className="main-content" style={{ flex: 1, paddingBottom: 80 }}>
-            <div style={{ background: `linear-gradient(160deg, ${C.forest} 0%, ${C.forestLight} 100%)`, padding: '20px 20px 28px', position: 'sticky', top: 0, zIndex: 100 }}>
+            <div style={{ background: `linear-gradient(160deg, ${C.forest} 0%, ${C.forestLight} 100%)`, padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 28px', position: 'sticky', top: 0, zIndex: 100 }}>
               <button onClick={() => setOpenProp(null)} style={{ background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: 10, padding: '8px 14px', color: C.white, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, marginBottom: 18 }}>
                 <ArrowLeft size={14}/> My Properties
               </button>
@@ -467,7 +467,7 @@ export default function TenantDashboard() {
       {/* Main content */}
       <div className="main-content" style={{ flex: 1, paddingBottom: 80, minHeight: '100vh', width: '100%', minWidth: 0 }}>
         {/* Sticky header */}
-        <div style={{ background: `linear-gradient(160deg, ${C.forest} 0%, ${C.forestLight} 100%)`, padding: '16px 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ background: `linear-gradient(160deg, ${C.forest} 0%, ${C.forestLight} 100%)`, padding: 'calc(16px + env(safe-area-inset-top, 0px)) 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Logo size={30}/>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
