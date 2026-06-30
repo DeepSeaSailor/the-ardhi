@@ -455,7 +455,9 @@ export default function TenantDashboard() {
         </div>
         <div style={{ padding: '16px 20px', borderTop: `1px solid rgba(255,255,255,0.1)` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: C.ochre, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, flexShrink: 0 }}>{firstName[0]}</div>
+            <button onClick={() => setTab('settings')} style={{ width: 36, height: 36, borderRadius: '50%', background: C.ochre, border: 'none', padding: 0, cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, flexShrink: 0 }}>
+              {profile?.avatar_url ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> : firstName[0]}
+            </button>
             <div>
               <div style={{ color: C.white, fontWeight: 700, fontSize: 13 }}>{profile?.full_name}</div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Tenant</div>
@@ -474,7 +476,9 @@ export default function TenantDashboard() {
               {unreadMessages > 0 && (
                 <div style={{ background: C.red, color: C.white, borderRadius: 20, minWidth: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, padding: '0 6px' }}>{unreadMessages}</div>
               )}
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: C.ochre, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 15 }}>{firstName[0]}</div>
+              <button onClick={() => setTab('settings')} style={{ width: 36, height: 36, borderRadius: '50%', background: C.ochre, border: 'none', padding: 0, cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 15, flexShrink: 0 }}>
+              {profile?.avatar_url ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> : firstName[0]}
+            </button>
             </div>
           </div>
           <div style={{ marginTop: 14 }}>
