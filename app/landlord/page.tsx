@@ -1062,6 +1062,65 @@ export default function LandlordDashboard() {
           {/* SETTINGS */}
           {tab === 'settings' && (
             <div>
+              {/* ── Profile card ── */}
+              <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, padding: 24, marginBottom: 14, textAlign: 'center' as const }}>
+                <div style={{ position: 'relative', width: 84, height: 84, margin: '0 auto 14px' }}>
+                  <div style={{ width: 84, height: 84, borderRadius: '50%', background: C.ochre, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 32, overflow: 'hidden' }}>
+                    {profile?.avatar_url
+                      ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                      : (profile?.full_name?.[0]?.toUpperCase() || 'L')}
+                  </div>
+                  <label style={{ position: 'absolute', bottom: -2, right: -2, width: 30, height: 30, borderRadius: '50%', background: C.forest, border: `2px solid ${C.white}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                    {uploadingAvatar ? <RefreshCw size={13} color={C.white} style={{ animation: 'spin 1s linear infinite' }}/> : <Camera size={13} color={C.white}/>}
+                    <input type="file" accept="image/*" style={{ display: 'none' }}
+                      onChange={e => { const f = e.target.files?.[0]; if (f) uploadAvatar(f) }}/>
+                  </label>
+                </div>
+
+                {!editingProfile ? (
+                  <>
+                    <div style={{ fontWeight: 800, fontSize: 19, color: C.charcoal }}>{profile?.full_name || 'Landlord'}</div>
+                    <div style={{ fontSize: 13, color: C.muted, marginTop: 3 }}>{profile?.email}</div>
+                    {profile?.phone && <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{profile.phone}</div>}
+
+                    <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+                      <div style={{ flex: 1, background: '#FAFAF8', borderRadius: 12, padding: '12px 8px' }}>
+                        <div style={{ fontWeight: 800, fontSize: 20, color: C.forest }}>{properties.length}</div>
+                        <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{properties.length === 1 ? 'Property' : 'Properties'} Owned</div>
+                      </div>
+                      <div style={{ flex: 1, background: '#FAFAF8', borderRadius: 12, padding: '12px 8px' }}>
+                        <div style={{ fontWeight: 800, fontSize: 20, color: C.ochre }}>{tenants.length}</div>
+                        <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{tenants.length === 1 ? 'Tenant' : 'Tenants'}</div>
+                      </div>
+                    </div>
+
+                    <button onClick={() => setEditingProfile(true)}
+                      style={{ marginTop: 16, width: '100%', padding: '11px', border: `1.5px solid ${C.border}`, borderRadius: 12, background: 'transparent', color: C.charcoal, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                      <Edit2 size={14}/> Edit Profile
+                    </button>
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'left' as const, marginTop: 4 }}>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 5, display: 'block' }}>Full Name</label>
+                    <input value={profileForm.full_name} onChange={e => setProfileForm(f => ({ ...f, full_name: e.target.value }))}
+                      style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const, marginBottom: 12 }}/>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 5, display: 'block' }}>Phone</label>
+                    <input value={profileForm.phone} onChange={e => setProfileForm(f => ({ ...f, phone: e.target.value }))}
+                      style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const, marginBottom: 16 }}/>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => { setEditingProfile(false); setProfileForm({ full_name: profile?.full_name || '', phone: profile?.phone || '' }) }}
+                        style={{ flex: 1, padding: '11px', border: `1.5px solid ${C.border}`, borderRadius: 10, background: 'transparent', color: C.muted, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        Cancel
+                      </button>
+                      <button onClick={saveProfile} disabled={saving}
+                        style={{ flex: 1, padding: '11px', border: 'none', borderRadius: 10, background: C.forest, color: C.white, fontWeight: 700, fontSize: 13, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
+                        {saving ? 'Saving…' : 'Save Changes'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, padding: 20, marginBottom: 14 }}>
                 <div style={{ fontWeight: 800, fontSize: 16, color: C.charcoal, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Lock size={16}/> Change Password</div>
                 <div style={{ position: 'relative', marginBottom: 12 }}>
