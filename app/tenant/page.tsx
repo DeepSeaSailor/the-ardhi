@@ -221,6 +221,7 @@ export default function TenantDashboard() {
   }
 
   const [uploadingId, setUploadingId] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   async function uploadIdDoc(file: File) {
     setUploadingId(true)
