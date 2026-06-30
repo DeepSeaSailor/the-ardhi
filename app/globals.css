@@ -51,9 +51,18 @@ input, select, textarea { font-family: inherit; }
 
 .fade-up { animation: fadeUp 0.22s ease forwards; }
 
+/* ─── SAFE AREA (PWA standalone mode — status bar / notch / home indicator) ── */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
 /* ─── MOBILE DEFAULT ──────────────────────────────────────────────────── */
 .app-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--canvas);
 }
 
@@ -63,6 +72,27 @@ input, select, textarea { font-family: inherit; }
 .main-content {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Any portal header (the dark forest banner with title/avatar) gets pushed
+   below the iOS status bar / Android camera cutout when running as an
+   installed PWA in standalone mode. Apply this class to header wrappers. */
+.app-header {
+  padding-top: calc(16px + var(--safe-top));
+  padding-left: calc(20px + var(--safe-left));
+  padding-right: calc(20px + var(--safe-right));
+}
+
+/* Bottom nav needs the same treatment so it isn't covered by the home
+   indicator bar on notched iPhones */
+.bottom-nav {
+  padding-bottom: var(--safe-bottom);
+}
+
+/* Top bars / sticky bars in admin and detail views */
+.app-topbar {
+  padding-top: calc(12px + var(--safe-top));
 }
 
 /* ─── DESKTOP ≥ 960px ─────────────────────────────────────────────────── */
