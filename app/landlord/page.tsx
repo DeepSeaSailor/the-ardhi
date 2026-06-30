@@ -706,7 +706,7 @@ export default function LandlordDashboard() {
           </div>
 
           {/* Bottom Nav */}
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', zIndex: 100 }} className="bottom-nav">
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', zIndex: 100, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} className="bottom-nav">
             {NAV.map(n => (
               <button key={n.key} onClick={() => { setTab(n.key); setSelectedProp(null) }} style={{ flex: 1, padding: '10px 2px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: C.muted, position: 'relative' }}>
                 <div>{n.icon}</div>
@@ -1053,7 +1053,7 @@ export default function LandlordDashboard() {
         </div>
 
         {/* Bottom Nav */}
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', zIndex: 100 }} className="bottom-nav">
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', zIndex: 100, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} className="bottom-nav">
           {NAV.map(n => (
             <button key={n.key} onClick={() => setTab(n.key)} style={{ flex: 1, padding: '10px 2px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: tab === n.key ? C.forest : C.muted, position: 'relative' }}>
               {(n.badge ?? 0) > 0 && <div style={{ position: 'absolute', top: 6, right: '50%', transform: 'translateX(10px)', background: C.red, color: C.white, borderRadius: 20, minWidth: 16, height: 16, fontSize: 9, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{n.badge}</div>}
