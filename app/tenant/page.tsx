@@ -222,6 +222,10 @@ export default function TenantDashboard() {
 
   const [uploadingId, setUploadingId] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [complaintText, setComplaintText] = useState('')
+  const [complaintPhoto, setComplaintPhoto] = useState<{ base64: string, name: string } | null>(null)
+  const [submittingComplaint, setSubmittingComplaint] = useState(false)
+  const [myComplaints, setMyComplaints] = useState<any[]>([])
 
   async function uploadIdDoc(file: File) {
     setUploadingId(true)
