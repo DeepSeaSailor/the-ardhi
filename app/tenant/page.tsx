@@ -119,17 +119,19 @@ export default function TenantDashboard() {
   const fetchData = useCallback(async () => {
     if (!userId) return
     try {
-      const [pRes, tRes, payRes, mRes] = await Promise.all([
+      const [pRes, tRes, payRes, mRes, cRes] = await Promise.all([
         apiFetch('/api/tenant/profile'),
         apiFetch('/api/tenant/tenancies'),
         apiFetch('/api/tenant/payments'),
         apiFetch('/api/tenant/messages'),
+        apiFetch('/api/tenant/complaints'),
       ])
-      const [p, t, pay, m] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), mRes.json()])
+      const [p, t, pay, m, c] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), mRes.json(), cRes.json()])
       if (p.data) { setProfile(p.data); setEditName(p.data.full_name || ''); setEditPhone(p.data.phone || '') }
       setTenancies(t.data || [])
       setPayments(pay.data || [])
       setMessages(m.data || [])
+      setMyComplaints(c.data || [])
     } catch (e) { console.error(e) } finally { setLoading(false) }
   }, [userId, apiFetch])
 
