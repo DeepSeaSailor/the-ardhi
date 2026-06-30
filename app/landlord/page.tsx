@@ -159,6 +159,10 @@ export default function LandlordDashboard() {
   const [msgReply, setMsgReply] = useState('')
   const [sendingMsg, setSendingMsg] = useState(false)
   const [showNotifPanel, setShowNotifPanel] = useState(false)
+  const [profile, setProfile] = useState<any>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [editingProfile, setEditingProfile] = useState(false)
+  const [profileForm, setProfileForm] = useState({ full_name: '', phone: '' })
 
   const [newProp, setNewProp] = useState({ name: '', type: 'apartment', location: '', total_units: '' })
   const [newTenant, setNewTenant] = useState({ full_name: '', national_id: '', phone: '', email: '', unit: '', rent: '' })
@@ -182,7 +186,7 @@ export default function LandlordDashboard() {
   const fetchData = useCallback(async () => {
     if (!userId) return
     try {
-      const [pRes, tRes, payRes, aRes, mRes, lRes, rRes] = await Promise.all([
+      const [pRes, tRes, payRes, aRes, mRes, lRes, rRes, profRes] = await Promise.all([
         apiFetch('/api/landlord/properties'),
         apiFetch('/api/landlord/tenants'),
         apiFetch('/api/landlord/payments'),
@@ -190,8 +194,9 @@ export default function LandlordDashboard() {
         apiFetch('/api/landlord/messages'),
         apiFetch('/api/landlord/listings'),
         apiFetch('/api/landlord/reviews'),
+        apiFetch('/api/landlord/profile'),
       ])
-      const [p, t, pay, a, m, l, r] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), aRes.json(), mRes.json(), lRes.json(), rRes.json()])
+      const [p, t, pay, a, m, l, r, prof] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), aRes.json(), mRes.json(), lRes.json(), rRes.json(), profRes.json()])
       setProperties(p.data || [])
       setTenants(t.data || [])
       setPayments(pay.data || [])
@@ -199,12 +204,60 @@ export default function LandlordDashboard() {
       setMessages(m.data || [])
       setListings(l.data || [])
       setReviews(r.data || [])
+      if (prof.data) {
+        setProfile(prof.data)
+        setProfileForm({ full_name: prof.data.full_name || '', phone: prof.data.phone || '' })
+      }
     } catch (e) { console.error(e) } finally { setLoading(false) }
   }, [userId, apiFetch])
 
   useEffect(() => { if (userId) fetchData() }, [userId, fetchData])
 
   function signOut() { clearSession(); router.push('/') }
+
+  async function uploadAvatar(file: File) {
+    setUploadingAvatar(true)
+    try {
+      const reader = new FileReader()
+      reader.onload = async () => {
+        const res = await apiFetch('/api/profile/avatar', {
+          method: 'POST',
+          body: JSON.stringify({ image_base64: reader.result, file_name: file.name }),
+        })
+        const d = await res.json()
+        if (res.ok) {
+          setProfile((p: any) => ({ ...p, avatar_url: d.url }))
+          showToast('Profile photo updated')
+        } else {
+          showToast(d.error || 'Upload failed')
+        }
+        setUploadingAvatar(false)
+      }
+      reader.readAsDataURL(file)
+    } catch (e) {
+      setUploadingAvatar(false)
+      showToast('Upload failed')
+    }
+  }
+
+  async function saveProfile() {
+    setSaving(true)
+    try {
+      const res = await apiFetch('/api/landlord/profile', { method: 'PATCH', body: JSON.stringify(profileForm) })
+      const d = await res.json()
+      if (res.ok) {
+        setProfile(d.data)
+        setEditingProfile(false)
+        showToast('Profile updated')
+      } else {
+        showToast(d.error || 'Update failed')
+      }
+    } catch (e) {
+      showToast('Update failed')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   async function uploadOwnershipDoc(propId: string, file: File) {
     setUploadingDoc(true)
