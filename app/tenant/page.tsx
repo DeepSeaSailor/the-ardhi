@@ -594,11 +594,31 @@ export default function TenantDashboard() {
               <div className="settings-grid">
                 {/* Profile */}
                 <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, padding: 20, marginBottom: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
-                    <div style={{ width: 52, height: 52, borderRadius: '50%', background: C.forest, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 20 }}>{firstName[0]}</div>
-                    <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+                    <div style={{ position: 'relative', width: 64, height: 64, flexShrink: 0 }}>
+                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: C.forest, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontWeight: 800, fontSize: 24, overflow: 'hidden' }}>
+                        {profile?.avatar_url ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> : firstName[0]}
+                      </div>
+                      <label style={{ position: 'absolute', bottom: -2, right: -2, width: 24, height: 24, borderRadius: '50%', background: C.ochre, border: `2px solid ${C.white}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                        {uploadingAvatar ? <Clock size={11} color={C.white}/> : <Camera size={11} color={C.white}/>}
+                        <input type="file" accept="image/*" style={{ display: 'none' }}
+                          onChange={e => { const f = e.target.files?.[0]; if (f) uploadAvatar(f) }}/>
+                      </label>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
                       <div style={{ fontWeight: 800, fontSize: 16, color: C.charcoal }}>{profile?.full_name}</div>
-                      <div style={{ fontSize: 12, color: C.muted }}>Tenant Account</div>
+                      <div style={{ fontSize: 12, color: C.muted, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{profile?.email}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
+                    <div style={{ flex: 1, background: '#FAFAF8', borderRadius: 12, padding: '12px 8px', textAlign: 'center' as const }}>
+                      <div style={{ fontWeight: 800, fontSize: 18, color: C.forest }}>{tenancies.length}</div>
+                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{tenancies.length === 1 ? 'Property' : 'Properties'} Rented</div>
+                    </div>
+                    <div style={{ flex: 1, background: '#FAFAF8', borderRadius: 12, padding: '12px 8px', textAlign: 'center' as const }}>
+                      <div style={{ fontWeight: 800, fontSize: 18, color: C.ochre }}>{payments.filter((p:any) => p.status === 'confirmed').length}</div>
+                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Payments Made</div>
                     </div>
                   </div>
                   <div style={{ marginBottom: 12 }}>
