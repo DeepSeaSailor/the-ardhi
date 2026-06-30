@@ -9,7 +9,7 @@ import {
   LogOut, Eye, EyeOff, Lock, ArrowLeft, Download,
   ChevronRight, Smartphone, Landmark, Clock, Plus,
   Wifi, Shield, Car, Zap, Droplets, Tv, Wind,
-  Waves, Dumbbell, Trees, Utensils, Sun, Flame, Dog
+  Waves, Dumbbell, Trees, Utensils, Sun, Flame, Dog, Camera
 } from 'lucide-react'
 
 const C = {
