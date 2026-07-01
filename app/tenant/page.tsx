@@ -95,6 +95,10 @@ export default function TenantDashboard() {
   const [reviewRating, setReviewRating] = useState(0)
   const [reviewComment, setReviewComment] = useState('')
   const [inviteCode, setInviteCode] = useState('')
+  const [linkStep, setLinkStep] = useState<'code'|'pick-unit'>('code')
+  const [linkProperty, setLinkProperty] = useState<any>(null)
+  const [linkUnits, setLinkUnits] = useState<any[]>([])
+  const [selectedUnit, setSelectedUnit] = useState<string>('')
   const [msgText, setMsgText] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [showNewPass, setShowNewPass] = useState(false)
@@ -168,20 +172,64 @@ export default function TenantDashboard() {
     } finally { setSaving(false) }
   }
 
-  async function linkProperty() {
+  async function validateCode() {
     if (!inviteCode.trim()) return
     setSaving(true)
     try {
-      const res = await apiFetch('/api/tenant/link-property', { method: 'POST', body: JSON.stringify({ invite_code: inviteCode.toUpperCase() }) })
+      const res = await apiFetch('/api/tenant/validate-code', {
+        method: 'POST',
+        body: JSON.stringify({ invite_code: inviteCode.toUpperCase().trim() })
+      })
       const d = await res.json()
-      if (res.ok) {
-        showToast('Property linked!')
-        setShowLinkProp(false)
-        setInviteCode('')
-        // Small delay then refetch so DB has time to commit
-        setTimeout(() => fetchData(), 800)
-      } else showToast(d.error || 'Invalid code')
+      if (!res.ok) { showToast(d.error || 'Invalid code'); return }
+
+      setLinkProperty(d.property)
+      setLinkUnits(d.units || [])
+
+      if (d.isUnitSpecific) {
+        // Unit-specific code — link immediately, no picker needed
+        await doLink(inviteCode.toUpperCase().trim())
+      } else if ((d.units || []).length <= 1) {
+        // Only one unit or none — link immediately
+        await doLink(inviteCode.toUpperCase().trim())
+      } else {
+        // Generic code + multiple units — show unit picker
+        setSelectedUnit('')
+        setLinkStep('pick-unit')
+      }
     } finally { setSaving(false) }
+  }
+
+  async function doLink(code: string) {
+    const res = await apiFetch('/api/tenant/link-property', {
+      method: 'POST',
+      body: JSON.stringify({ invite_code: code })
+    })
+    const d = await res.json()
+    if (res.ok) {
+      showToast('Property linked!')
+      setShowLinkProp(false)
+      setInviteCode('')
+      setLinkStep('code')
+      setLinkProperty(null)
+      setLinkUnits([])
+      setTimeout(() => fetchData(), 800)
+    } else {
+      showToast(d.error || 'Linking failed')
+    }
+  }
+
+  async function confirmUnitSelection() {
+    if (!selectedUnit) return
+    setSaving(true)
+    try {
+      // Pass unit-specific code: baseCode + -U + unitNumber
+      const baseCode = inviteCode.toUpperCase().trim()
+      const unitCode = baseCode + '-U' + selectedUnit
+      await doLink(unitCode)
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function sendMessage() {
@@ -757,13 +805,67 @@ export default function TenantDashboard() {
         </div>
       </div>
 
-      <Modal open={showLinkProp} onClose={() => setShowLinkProp(false)} title="Link a Property">
-        <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>Your landlord gives you an invite code. Enter it below to link your rental.</p>
-        <input placeholder="Enter invite code (e.g. ABC123)" value={inviteCode} onChange={e => setInviteCode(e.target.value.toUpperCase())}
-          style={{ width: '100%', padding: '14px', borderRadius: 12, border: `1.5px solid ${C.border}`, fontSize: 20, fontWeight: 700, outline: 'none', textAlign: 'center', letterSpacing: 6, marginBottom: 16, boxSizing: 'border-box' as const, fontFamily: 'monospace' }}/>
-        <button onClick={linkProperty} disabled={saving || !inviteCode.trim()} style={{ width: '100%', padding: '14px', border: 'none', borderRadius: 12, background: inviteCode ? C.forest : C.muted, color: C.white, fontWeight: 700, fontSize: 15, cursor: inviteCode ? 'pointer' : 'not-allowed' }}>
-          {saving ? 'Linking...' : 'Link Property'}
-        </button>
+      <Modal open={showLinkProp} onClose={() => { setShowLinkProp(false); setLinkStep('code'); setInviteCode(''); setLinkProperty(null) }}
+        title={linkStep === 'pick-unit' ? 'Select Your Unit' : 'Link a Property'}>
+
+        {linkStep === 'code' && (
+          <>
+            <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
+              Your landlord gives you an invite code. Enter it below to link your rental.
+            </p>
+            <input
+              placeholder="Enter invite code (e.g. ABC123)"
+              value={inviteCode}
+              onChange={e => setInviteCode(e.target.value.toUpperCase())}
+              style={{ width: '100%', padding: '14px', borderRadius: 12, border: `1.5px solid ${C.border}`, fontSize: 20, fontWeight: 700, outline: 'none', textAlign: 'center', letterSpacing: 6, marginBottom: 16, boxSizing: 'border-box' as const, fontFamily: 'monospace' }}/>
+            <button onClick={validateCode} disabled={saving || !inviteCode.trim()}
+              style={{ width: '100%', padding: '14px', border: 'none', borderRadius: 12, background: inviteCode.trim() ? C.forest : C.muted, color: C.white, fontWeight: 700, fontSize: 15, cursor: inviteCode.trim() ? 'pointer' : 'not-allowed' }}>
+              {saving ? 'Checking...' : 'Continue'}
+            </button>
+          </>
+        )}
+
+        {linkStep === 'pick-unit' && linkProperty && (
+          <>
+            <div style={{ background: '#F8F9FA', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
+              <div style={{ fontWeight: 700, color: C.charcoal, fontSize: 15 }}>{linkProperty.name}</div>
+              <div style={{ fontSize: 13, color: C.muted, marginTop: 3 }}>{linkProperty.location}</div>
+            </div>
+
+            <p style={{ color: C.muted, fontSize: 14, marginBottom: 14 }}>
+              Which unit are you renting? Select yours below.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20, maxHeight: 260, overflowY: 'auto' as const }}>
+              {linkUnits.filter((u: any) => !u.is_occupied).map((u: any) => (
+                <button key={u.id} onClick={() => setSelectedUnit(u.unit_number)}
+                  style={{ padding: '16px 8px', border: `2px solid ${selectedUnit === u.unit_number ? C.forest : C.border}`, borderRadius: 12, background: selectedUnit === u.unit_number ? `${C.forest}0E` : C.white, cursor: 'pointer', textAlign: 'center' as const }}>
+                  <div style={{ fontWeight: 800, fontSize: 18, color: selectedUnit === u.unit_number ? C.forest : C.charcoal }}>
+                    {u.unit_number}
+                  </div>
+                  <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>Unit</div>
+                  {u.rent_amount > 0 && <div style={{ fontSize: 10, color: C.green, fontWeight: 600, marginTop: 2 }}>UGX {(u.rent_amount/1000).toFixed(0)}K</div>}
+                </button>
+              ))}
+              {linkUnits.filter((u: any) => !u.is_occupied).length === 0 && (
+                <div style={{ gridColumn: '1/-1', textAlign: 'center' as const, color: C.muted, padding: 24, fontSize: 13 }}>
+                  No vacant units found. Contact your landlord.
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setLinkStep('code')}
+                style={{ flex: 1, padding: '13px', border: `1px solid ${C.border}`, borderRadius: 12, background: 'transparent', color: C.muted, fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
+                Back
+              </button>
+              <button onClick={confirmUnitSelection} disabled={saving || !selectedUnit}
+                style={{ flex: 2, padding: '13px', border: 'none', borderRadius: 12, background: selectedUnit ? C.forest : C.muted, color: C.white, fontWeight: 700, fontSize: 14, cursor: selectedUnit ? 'pointer' : 'not-allowed' }}>
+                {saving ? 'Linking...' : `Confirm Unit ${selectedUnit}`}
+              </button>
+            </div>
+          </>
+        )}
       </Modal>
 
       <Toast msg={toast.msg} visible={toast.show}/>
