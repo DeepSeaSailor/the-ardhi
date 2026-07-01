@@ -501,6 +501,17 @@ export default function LandlordDashboard() {
   const unreadAlerts = alerts.filter((a: any) => !a.is_read).length
   const unreadMessages = messages.filter((m: any) => m.receiver_id === userId && !m.is_read).length
   const totalNotifs = unreadAlerts + unreadMessages
+
+  // ─── Subscription helpers ────────────────────────────────────────────
+  const isExpired = subscription?.status === 'expired'
+  const isTrial   = subscription?.status === 'trial'
+  const isPending  = subscription?.status === 'pending'
+  const isActive   = subscription?.status === 'active'
+  const isLocked   = isExpired
+  const trialDaysLeft = subscription?.trial_ends_at
+    ? Math.max(0, Math.ceil((new Date(subscription.trial_ends_at).getTime() - Date.now()) / 86400000))
+    : 14
+  const showTrialWarning = isTrial && trialDaysLeft <= 5
   const totalCollected = payments.filter((p: any) => p.status === 'confirmed').reduce((s: number, p: any) => s + (p.amount || 0), 0)
   const totalExpected = tenants.reduce((s: number, t: any) => s + (t.rent_amount || 0), 0)
 
