@@ -344,16 +344,14 @@ export default function Home() {
   // Landing
   async function handleForgotPassword() {
     if (!forgotEmail.trim()) return
-    setForgotLoading(true)
-    try {
-      await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail.trim() }),
-      })
-      setForgotSent(true)
-    } catch { /* silent */ }
-    setForgotLoading(false)
+    // Show sent state immediately — don't make user wait for API
+    setForgotSent(true)
+    // Fire API in background
+    fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: forgotEmail.trim() }),
+    }).catch(() => {/* silent */})
   }
 
 
