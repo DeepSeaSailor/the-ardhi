@@ -897,6 +897,24 @@ export default function LandlordDashboard() {
       <Sidebar nav={sidebarNav} tab={tab} setTab={setTab} onSignOut={signOut} role="Landlord"/>
       <div className="main-content" style={{ display: 'flex', flexDirection: 'column', paddingBottom: 80, minHeight: '100vh' }}>
 
+        {/* ── Subscription banners ── */}
+        {showTrialWarning && !isLocked && (
+          <div style={{ background: '#FFF8E1', borderBottom: '2px solid #F5C542', padding: '11px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#7A5C00' }}>
+              ⏳ {trialDaysLeft === 0 ? 'Your free trial ends today!' : `Free trial: ${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left`}
+            </div>
+            <button onClick={() => { setTab('settings'); setShowBilling(true) }}
+              style={{ background: C.ochre, color: C.white, border: 'none', borderRadius: 8, padding: '6px 14px', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+              Subscribe — UGX 55,000/mo
+            </button>
+          </div>
+        )}
+        {isPending && (
+          <div style={{ background: '#E8F4FD', borderBottom: '2px solid #90CAF9', padding: '11px 20px', fontSize: 13, fontWeight: 600, color: '#1565C0' }}>
+            ⏳ Payment submitted — your account will be activated within 24 hours after verification.
+          </div>
+        )}
+
         {/* Header */}
         <div style={{ background: C.forest, padding: 'calc(16px + env(safe-area-inset-top, 0px)) 20px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
