@@ -302,6 +302,16 @@ export default function Home() {
               {loading ? 'Please wait...' : isSignUp ? 'Continue' : 'Sign in'} {!loading && <ArrowRight size={18}/>}
             </button>
 
+            {!isSignUp && (
+              <p style={{ textAlign: 'center', marginTop: 10, fontSize: 13 }}>
+                <span
+                  style={{ color: C.muted, cursor: 'pointer', textDecoration: 'underline' }}
+                  onClick={() => { setShowForgot(true); setForgotSent(false); setForgotEmail('') }}>
+                  Forgot your password?
+                </span>
+              </p>
+            )}
+
             <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: C.muted }}>
               {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
               <span style={{ color: roleColor, fontWeight: 700, cursor: 'pointer' }} onClick={() => { setIsSignUp(!isSignUp); setError('') }}>
@@ -359,6 +369,52 @@ export default function Home() {
           </a>
         </div>
       </div>
+
+      {/* ── FORGOT PASSWORD MODAL ── */}
+      {showForgot && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 460, padding: '28px 24px 48px' }}>
+            {!forgotSent ? (
+              <>
+                <div style={{ fontWeight: 800, fontSize: 20, color: C.charcoal, marginBottom: 6 }}>Reset Password</div>
+                <div style={{ fontSize: 14, color: C.muted, marginBottom: 22, lineHeight: 1.5 }}>
+                  Enter your account email and we'll send you a reset link.
+                </div>
+                <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6, display: 'block' }}>Email Address</label>
+                <input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={e => setForgotEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  style={{ width: '100%', padding: '13px 14px', borderRadius: 12, border: `1.5px solid ${C.border}`, fontSize: 15, outline: 'none', boxSizing: 'border-box' as const, background: '#FAFAF8', marginBottom: 16 }}
+                />
+                <button
+                  onClick={handleForgotPassword}
+                  disabled={forgotLoading || !forgotEmail.trim()}
+                  style={{ width: '100%', padding: '14px', background: forgotLoading ? C.muted : C.forest, color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: 16, cursor: forgotLoading ? 'not-allowed' : 'pointer', marginBottom: 10 }}>
+                  {forgotLoading ? 'Sending…' : 'Send Reset Link'}
+                </button>
+                <button onClick={() => setShowForgot(false)}
+                  style={{ width: '100%', padding: '12px', background: 'none', border: `1px solid ${C.border}`, borderRadius: 12, fontWeight: 600, fontSize: 14, color: C.muted, cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>📧</div>
+                <div style={{ fontWeight: 800, fontSize: 20, color: C.charcoal, marginBottom: 8 }}>Check your email</div>
+                <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6, marginBottom: 24 }}>
+                  If <strong>{forgotEmail}</strong> is registered on The Ardhi, you'll receive a reset link shortly. Check your spam folder too.
+                </div>
+                <button onClick={() => setShowForgot(false)}
+                  style={{ width: '100%', padding: '14px', background: C.forest, color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: 16, cursor: 'pointer' }}>
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
