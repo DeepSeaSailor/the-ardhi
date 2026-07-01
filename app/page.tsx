@@ -307,13 +307,14 @@ export default function Home() {
             </button>
 
             {!isSignUp && (
-              <p style={{ textAlign: 'center', marginTop: 10, fontSize: 13 }}>
-                <span
-                  style={{ color: C.muted, cursor: 'pointer', textDecoration: 'underline' }}
-                  onClick={() => { setShowForgot(true); setForgotSent(false); setForgotEmail('') }}>
+              <div style={{ textAlign: 'center', marginTop: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => { setShowForgot(true); setForgotSent(false); setForgotEmail(email) }}
+                  style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, textDecoration: 'underline', padding: '8px 4px', WebkitTapHighlightColor: 'transparent' }}>
                   Forgot your password?
-                </span>
-              </p>
+                </button>
+              </div>
             )}
 
             <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: C.muted }}>
