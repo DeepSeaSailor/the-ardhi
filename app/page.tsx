@@ -55,6 +55,10 @@ export default function Home() {
   const [nationalIdBack, setNationalIdBack] = useState<string | null>(null)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showForgot, setShowForgot] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
+  const [forgotLoading, setForgotLoading] = useState(false)
   const [error, setError] = useState('')
   const [userId, setUserId] = useState<string | null>(null)
 
@@ -341,6 +345,21 @@ export default function Home() {
   }
 
   // Landing
+  async function handleForgotPassword() {
+    if (!forgotEmail.trim()) return
+    setForgotLoading(true)
+    try {
+      await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail.trim() }),
+      })
+      setForgotSent(true)
+    } catch { /* silent */ }
+    setForgotLoading(false)
+  }
+
+
   return (
     <div style={{ minHeight: '100vh', background: C.forest, display: 'flex', flexDirection: 'column' }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 24px 32px', textAlign: 'center' }}>
