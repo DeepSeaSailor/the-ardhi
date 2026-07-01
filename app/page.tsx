@@ -55,10 +55,6 @@ export default function Home() {
   const [nationalIdBack, setNationalIdBack] = useState<string | null>(null)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [showForgot, setShowForgot] = useState(false)
-  const [forgotEmail, setForgotEmail] = useState('')
-  const [forgotSent, setForgotSent] = useState(false)
-  const [forgotLoading, setForgotLoading] = useState(false)
   const [error, setError] = useState('')
   const [userId, setUserId] = useState<string | null>(null)
 
