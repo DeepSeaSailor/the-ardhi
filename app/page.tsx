@@ -338,6 +338,54 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal — must be inside auth return so showForgot state works */}
+      {showForgot && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowForgot(false) }}>
+          <div style={{ background: '#fff', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 460, padding: '28px 24px 48px' }}>
+            {!forgotSent ? (
+              <>
+                <div style={{ fontWeight: 800, fontSize: 20, color: '#1A1A1A', marginBottom: 6 }}>Reset Password</div>
+                <div style={{ fontSize: 14, color: '#8A8A82', marginBottom: 22, lineHeight: 1.5 }}>
+                  Enter your email and we'll send you a reset link.
+                </div>
+                <label style={{ fontSize: 12, fontWeight: 700, color: '#8A8A82', marginBottom: 6, display: 'block' }}>Email Address</label>
+                <input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={e => setForgotEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  style={{ width: '100%', padding: '13px 14px', borderRadius: 12, border: '1.5px solid #E8E4DC', fontSize: 15, outline: 'none', boxSizing: 'border-box' as const, background: '#FAFAF8', marginBottom: 16 }}
+                />
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={!forgotEmail.trim()}
+                  style={{ width: '100%', padding: '14px', background: !forgotEmail.trim() ? '#8A8A82' : '#1B3A2D', color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: 16, cursor: !forgotEmail.trim() ? 'not-allowed' : 'pointer', marginBottom: 10 }}>
+                  Send Reset Link
+                </button>
+                <button type="button" onClick={() => setShowForgot(false)}
+                  style={{ width: '100%', padding: '12px', background: 'none', border: '1px solid #E8E4DC', borderRadius: 12, fontWeight: 600, fontSize: 14, color: '#8A8A82', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center' as const, padding: '8px 0' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>📧</div>
+                <div style={{ fontWeight: 800, fontSize: 20, color: '#1A1A1A', marginBottom: 8 }}>Check your email</div>
+                <div style={{ fontSize: 14, color: '#8A8A82', lineHeight: 1.6, marginBottom: 24 }}>
+                  If <strong>{forgotEmail}</strong> is registered on The Ardhi, you'll receive a reset link shortly. Check your spam folder too.
+                </div>
+                <button type="button" onClick={() => setShowForgot(false)}
+                  style={{ width: '100%', padding: '14px', background: '#1B3A2D', color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: 16, cursor: 'pointer' }}>
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     )
   }
 
