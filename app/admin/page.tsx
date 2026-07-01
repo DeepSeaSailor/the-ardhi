@@ -515,7 +515,7 @@ export default function AdminDashboard() {
               <div style={{ display:'grid', gridTemplateColumns:'280px 1fr', gap:20, alignItems:'start' }}>
                 <div style={{ background: C.white, borderRadius:16, border:`1px solid ${C.border}`, padding:'22px 24px' }}>
                   <div style={{ fontWeight:800, fontSize:15, color: C.charcoal, marginBottom:16 }}>Pricing</div>
-                  {[{label:'Monthly',price:'UGX 50,000',color:C.accent},{label:'Annual',price:'UGX 500,000',color:C.purple}].map(p=>(
+                  {[{label:'Monthly',price:'UGX 55,000',color:C.accent},{label:'Annual',price:'UGX 600,000',color:C.purple}].map(p=>(
                     <div key={p.label} style={{ background:`${p.color}08`, border:`1px solid ${p.color}20`, borderRadius:12, padding:'16px', marginBottom:10, textAlign:'center' }}>
                       <div style={{ fontSize:11, color:p.color, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em' }}>{p.label}</div>
                       <div style={{ fontSize:22, fontWeight:900, color: C.charcoal, marginTop:6 }}>{p.price}</div>
@@ -537,7 +537,7 @@ export default function AdminDashboard() {
                           <div style={{ fontSize:12, color: C.muted, marginTop:3, display:'flex', alignItems:'center', gap:4 }}><Mail size={11}/>{s.landlord_email}</div>
                           {s.landlord_phone && <div style={{ fontSize:12, color: C.muted, marginTop:2 }}><Phone size={11} style={{display:'inline',marginRight:4}}/>{s.landlord_phone}</div>}
                         </div>
-                        <Pill label={s.status} color={s.status==='active'?C.accent:s.status==='expired'?C.red:C.ochre}/>
+                        <Pill label={s.status} color={s.status==='active'?C.accent:s.status==='expired'?C.red:s.status==='trial'?C.blue:C.ochre}/>
                       </div>
                       <div style={{ display:'flex', gap:8, flexWrap:'wrap' as const, marginBottom:s.status==='pending'?12:0 }}>
                         {[{l:'Plan',v:s.plan},{l:'Amount',v:fmt(s.amount)}].map(x=>(
@@ -547,7 +547,7 @@ export default function AdminDashboard() {
                         ))}
                         {s.end_date && <div style={{ background:'#F8FAFC', border:`1px solid ${C.border}`, borderRadius:8, padding:'5px 12px', fontSize:12, color: C.muted, display:'flex', alignItems:'center', gap:4 }}><Calendar size={10}/> Expires {new Date(s.end_date).toLocaleDateString()}</div>}
                       </div>
-                      {s.status==='pending' && (
+                      {(s.status==='pending' || s.status==='expired') && (
                         <button onClick={()=>act(`/api/admin/subscriptions/${s.id}`,{status:'active',plan:s.plan},'Subscription activated')}
                           style={{ width:'100%', padding:'10px', border:'none', borderRadius:10, background: C.accent, color:'#fff', fontWeight:800, cursor:'pointer', fontSize:14, display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
                           <Zap size={14}/> Activate Subscription
