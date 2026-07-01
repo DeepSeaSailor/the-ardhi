@@ -1207,6 +1207,104 @@ export default function LandlordDashboard() {
                 )}
               </div>
 
+              {/* ── BILLING CARD ── */}
+              <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, padding: 20, marginBottom: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: C.charcoal, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <CreditCard size={16}/> Subscription
+                  </div>
+                  {isActive && <span style={{ background: `${C.green}18`, color: C.green, border: `1px solid ${C.green}40`, borderRadius: 8, padding: '3px 10px', fontSize: 12, fontWeight: 700 }}>✓ Active</span>}
+                  {isTrial && <span style={{ background: '#FFF8E1', color: '#7A5C00', border: '1px solid #F5C54240', borderRadius: 8, padding: '3px 10px', fontSize: 12, fontWeight: 700 }}>Trial — {trialDaysLeft}d left</span>}
+                  {isPending && <span style={{ background: '#E3F2FD', color: '#1565C0', border: '1px solid #90CAF940', borderRadius: 8, padding: '3px 10px', fontSize: 12, fontWeight: 700 }}>⏳ Pending</span>}
+                  {isExpired && <span style={{ background: `${C.red}12`, color: C.red, border: `1px solid ${C.red}30`, borderRadius: 8, padding: '3px 10px', fontSize: 12, fontWeight: 700 }}>Expired</span>}
+                </div>
+
+                {isActive && (
+                  <div style={{ background: '#F8F9FA', borderRadius: 12, padding: '14px 16px', marginBottom: 0 }}>
+                    <div style={{ fontSize: 13, color: C.muted }}>Plan</div>
+                    <div style={{ fontWeight: 700, color: C.charcoal, fontSize: 15, marginTop: 2 }}>{subscription?.plan === 'annual' ? 'Annual — UGX 600,000' : 'Monthly — UGX 55,000'}</div>
+                    {subscription?.end_date && <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>Renews {new Date(subscription.end_date).toLocaleDateString('en-UG', { day: 'numeric', month: 'long', year: 'numeric' })}</div>}
+                  </div>
+                )}
+
+                {(isTrial || isExpired || showBilling) && !isPending && (
+                  <div>
+                    {!showBilling && (
+                      <button onClick={() => setShowBilling(true)}
+                        style={{ width: '100%', padding: '13px', background: C.forest, color: C.white, border: 'none', borderRadius: 12, fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
+                        {isTrial ? `Subscribe — ${trialDaysLeft}d trial left` : 'Renew Subscription'}
+                      </button>
+                    )}
+
+                    {showBilling && (
+                      <div>
+                        {/* Plan picker */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                          {([['monthly', 'Monthly', 'UGX 55,000'], ['annual', 'Annual', 'UGX 600,000']] as const).map(([val, label, price]) => (
+                            <button key={val} onClick={() => setBillingPlan(val)}
+                              style={{ padding: '14px 10px', border: `2px solid ${billingPlan === val ? C.forest : C.border}`, borderRadius: 12, background: billingPlan === val ? `${C.forest}08` : C.white, cursor: 'pointer', textAlign: 'center' as const }}>
+                              <div style={{ fontWeight: 700, fontSize: 13, color: billingPlan === val ? C.forest : C.charcoal }}>{label}</div>
+                              <div style={{ fontWeight: 900, fontSize: 17, color: billingPlan === val ? C.forest : C.charcoal, marginTop: 2 }}>{price}</div>
+                              {val === 'annual' && <div style={{ fontSize: 10, color: C.green, fontWeight: 600, marginTop: 2 }}>Save 2 months</div>}
+                              {val === 'monthly' && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>per month</div>}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Payment method */}
+                        <div style={{ marginBottom: 12 }}>
+                          <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 5, display: 'block' }}>Payment Method</label>
+                          <select value={billingMethod} onChange={e => setBillingMethod(e.target.value)}
+                            style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, background: '#FAFAF8', outline: 'none', boxSizing: 'border-box' as const }}>
+                            <option value="mobile_money">MTN Mobile Money</option>
+                            <option value="airtel_money">Airtel Money</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                          </select>
+                        </div>
+
+                        <div style={{ marginBottom: 12 }}>
+                          <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 5, display: 'block' }}>Your Phone / Account Number</label>
+                          <input value={billingPhone} onChange={e => setBillingPhone(e.target.value)}
+                            placeholder="e.g. 0771234567"
+                            style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}/>
+                        </div>
+
+                        <div style={{ background: '#FFF8E1', border: '1px solid #F5C542', borderRadius: 10, padding: '12px 14px', marginBottom: 14, fontSize: 13 }}>
+                          <div style={{ fontWeight: 700, color: '#7A5C00', marginBottom: 4 }}>How to pay:</div>
+                          <div style={{ color: '#7A5C00', lineHeight: 1.6 }}>
+                            Send <strong>UGX {billingPlan === 'annual' ? '600,000' : '55,000'}</strong> via {billingMethod === 'airtel_money' ? 'Airtel Money' : billingMethod === 'bank_transfer' ? 'Bank Transfer' : 'MTN MoMo'} to <strong>0757 647 660</strong> (The Ardhi), then enter the transaction reference below.
+                          </div>
+                        </div>
+
+                        <div style={{ marginBottom: 14 }}>
+                          <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 5, display: 'block' }}>Transaction Reference / Receipt Number</label>
+                          <input value={billingRef} onChange={e => setBillingRef(e.target.value)}
+                            placeholder="e.g. REF123456789"
+                            style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14, outline: 'none', background: '#FAFAF8', boxSizing: 'border-box' as const }}/>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => setShowBilling(false)}
+                            style={{ flex: 1, padding: '11px', border: `1.5px solid ${C.border}`, borderRadius: 10, background: 'transparent', color: C.muted, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                            Cancel
+                          </button>
+                          <button onClick={submitBilling} disabled={submittingBilling}
+                            style={{ flex: 2, padding: '11px', border: 'none', borderRadius: 10, background: C.forest, color: C.white, fontWeight: 800, fontSize: 13, cursor: 'pointer', opacity: submittingBilling ? 0.6 : 1 }}>
+                            {submittingBilling ? 'Submitting…' : 'Submit Payment'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {isPending && (
+                  <div style={{ background: '#E8F4FD', borderRadius: 12, padding: '14px 16px', fontSize: 13, color: '#1565C0', lineHeight: 1.6 }}>
+                    ✓ Payment submitted and pending verification. Your account will be activated within 24 hours. Reference: <strong>{subscription?.payment_reference}</strong>
+                  </div>
+                )}
+              </div>
+
               <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, padding: 20, marginBottom: 14 }}>
                 <div style={{ fontWeight: 800, fontSize: 16, color: C.charcoal, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Lock size={16}/> Change Password</div>
                 <div style={{ position: 'relative', marginBottom: 12 }}>
