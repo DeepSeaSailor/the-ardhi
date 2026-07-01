@@ -249,6 +249,7 @@ export default function Home() {
   if (step === 'auth' && role) {
     const roleData = ROLES.find(r => r.key === role)!
     return (
+      <>
       <div style={{ minHeight: '100vh', background: C.canvas, display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '20px 20px 0', display: 'flex', alignItems: 'center', gap: 16 }}>
           <button onClick={() => setStep('landing')} style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 14px', color: C.muted, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>← Back</button>
@@ -386,6 +387,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      </>
     )
   }
 
