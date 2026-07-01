@@ -193,7 +193,7 @@ export default function LandlordDashboard() {
   const fetchData = useCallback(async () => {
     if (!userId) return
     try {
-      const [pRes, tRes, payRes, aRes, mRes, lRes, rRes, profRes] = await Promise.all([
+      const [pRes, tRes, payRes, aRes, mRes, lRes, rRes, profRes, subRes] = await Promise.all([
         apiFetch('/api/landlord/properties'),
         apiFetch('/api/landlord/tenants'),
         apiFetch('/api/landlord/payments'),
@@ -202,8 +202,9 @@ export default function LandlordDashboard() {
         apiFetch('/api/landlord/listings'),
         apiFetch('/api/landlord/reviews'),
         apiFetch('/api/landlord/profile'),
+        apiFetch('/api/landlord/subscription'),
       ])
-      const [p, t, pay, a, m, l, r, prof] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), aRes.json(), mRes.json(), lRes.json(), rRes.json(), profRes.json()])
+      const [p, t, pay, a, m, l, r, prof, sub] = await Promise.all([pRes.json(), tRes.json(), payRes.json(), aRes.json(), mRes.json(), lRes.json(), rRes.json(), profRes.json(), subRes.json()])
       setProperties(p.data || [])
       setTenants(t.data || [])
       setPayments(pay.data || [])
@@ -215,6 +216,7 @@ export default function LandlordDashboard() {
         setProfile(prof.data)
         setProfileForm({ full_name: prof.data.full_name || '', phone: prof.data.phone || '' })
       }
+      if (sub.data) setSubscription(sub.data)
     } catch (e) { console.error(e) } finally { setLoading(false) }
   }, [userId, apiFetch])
 
