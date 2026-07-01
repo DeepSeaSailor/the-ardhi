@@ -249,6 +249,32 @@ export default function LandlordDashboard() {
     }
   }
 
+  // Subscription billing submit
+  async function submitBilling() {
+    if (!billingRef.trim() || !billingPhone.trim()) {
+      showToast('Please enter your payment reference and phone number')
+      return
+    }
+    setSubmittingBilling(true)
+    try {
+      const res = await apiFetch('/api/landlord/subscription', {
+        method: 'POST',
+        body: JSON.stringify({ plan: billingPlan, payment_method: billingMethod, payment_reference: billingRef.trim(), phone_or_account: billingPhone.trim() }),
+      })
+      const d = await res.json()
+      if (res.ok) {
+        setSubscription(d.data)
+        setShowBilling(false)
+        setBillingRef('')
+        setBillingPhone('')
+        showToast('Payment submitted! We will activate your account within 24 hours.')
+      } else {
+        showToast(d.error || 'Submission failed')
+      }
+    } catch { showToast('Submission failed') }
+    finally { setSubmittingBilling(false) }
+  }
+
   async function saveProfile() {
     setSaving(true)
     try {
