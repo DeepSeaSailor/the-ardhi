@@ -11,13 +11,16 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://the-ardhi.vercel.app/reset-password',
+    // Always redirect to production URL — never localhost
+    const redirectTo = 'https://the-ardhi.vercel.app/reset-password'
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo,
     })
 
-    // Always return success — don't reveal whether email exists
     if (error) console.error('Reset password error:', error.message)
-    return NextResponse.json({ message: 'If an account with that email exists, a reset link has been sent.' })
+    // Always return success — never reveal whether email exists
+    return NextResponse.json({ ok: true })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
