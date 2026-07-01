@@ -589,7 +589,29 @@ export default function LandlordDashboard() {
             </div>
           </div>
 
-          <div style={{ flex: 1, padding: '24px 28px', maxWidth: 960, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
+          {/* ── LOCKOUT SCREEN ── */}
+        {isLocked && tab !== 'settings' && (
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <div style={{ background: C.white, borderRadius: 24, padding: '40px 28px', maxWidth: 380, width: '100%', textAlign: 'center' as const, boxShadow: '0 4px 32px rgba(0,0,0,0.08)' }}>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>🔒</div>
+              <div style={{ fontWeight: 800, fontSize: 20, color: C.charcoal, marginBottom: 8 }}>Trial Ended</div>
+              <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6, marginBottom: 24 }}>
+                Subscribe to continue managing your properties and tenants.
+              </div>
+              <div style={{ background: '#F8F9FA', borderRadius: 14, padding: '16px', marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Monthly</div>
+                <div style={{ fontSize: 30, fontWeight: 900, color: C.charcoal }}>UGX 55,000<span style={{ fontSize: 14, fontWeight: 500, color: C.muted }}>/mo</span></div>
+              </div>
+              <div style={{ fontSize: 12, color: C.green, fontWeight: 600, marginBottom: 20 }}>Annual: UGX 600,000 — save 2 months</div>
+              <button onClick={() => { setTab('settings'); setShowBilling(true) }}
+                style={{ width: '100%', padding: '15px', background: C.forest, color: C.white, border: 'none', borderRadius: 14, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
+                Subscribe Now
+              </button>
+            </div>
+          </div>
+        )}
+
+                <div style={{ flex: 1, padding: '24px 28px', maxWidth: 960, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const, display: isLocked && tab !== 'settings' ? 'none' : undefined }}>
             <SectionTab tabs={detailTabs} active={propDetailTab} onChange={setPropDetailTab}/>
 
             {/* TENANTS */}
